@@ -20,9 +20,11 @@ public class profile extends javax.swing.JFrame {
 
       private String userRole;
 
-    // Modify constructor to accept the role
+    
     public profile(String role) {
+        this.setUndecorated(true);
         initComponents();
+        this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
         this.userRole = role;
     }
     
@@ -73,7 +75,7 @@ public class profile extends javax.swing.JFrame {
         aid = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         back = new javax.swing.JLabel();
-        jPanel5 = new javax.swing.JPanel();
+        data = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         editprofile = new javax.swing.JPanel();
@@ -88,17 +90,26 @@ public class profile extends javax.swing.JFrame {
         });
 
         jPanel1.setBackground(new java.awt.Color(76, 143, 209));
+        jPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jPanel1MouseDragged(evt);
+            }
+        });
+        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jPanel1MousePressed(evt);
+            }
+        });
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel2.setBackground(new java.awt.Color(154, 154, 238));
+        jPanel2.setBackground(new java.awt.Color(20, 20, 130));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel4.setBackground(new java.awt.Color(204, 102, 255));
-        jPanel4.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
+        jPanel4.setBackground(new java.awt.Color(91, 100, 193));
+        jPanel4.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel3.setBackground(new java.awt.Color(204, 204, 255));
-        jPanel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 4, true));
+        jPanel3.setBackground(new java.awt.Color(91, 100, 193));
         jPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 jPanel3MouseEntered(evt);
@@ -114,8 +125,9 @@ public class profile extends javax.swing.JFrame {
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 240, 170));
 
-        fname.setBackground(new java.awt.Color(204, 204, 255));
+        fname.setBackground(new java.awt.Color(91, 100, 193));
         fname.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        fname.setForeground(new java.awt.Color(255, 255, 255));
         fname.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         fname.setBorder(null);
         jPanel3.add(fname, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, 220, 30));
@@ -134,49 +146,62 @@ public class profile extends javax.swing.JFrame {
         jPanel4.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, 240, 210));
 
         jLabel5.setFont(new java.awt.Font("SansSerif", 1, 20)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("USERNAME: ");
         jPanel4.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 80, 140, -1));
 
-        uname.setBackground(new java.awt.Color(204, 102, 255));
+        uname.setBackground(new java.awt.Color(91, 100, 193));
         uname.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        uname.setForeground(new java.awt.Color(255, 255, 255));
         uname.setBorder(null);
         uname.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 unameActionPerformed(evt);
             }
         });
-        jPanel4.add(uname, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 80, 270, 30));
+        jPanel4.add(uname, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 80, 270, 30));
 
         jLabel6.setFont(new java.awt.Font("SansSerif", 1, 20)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("EMAIL :");
         jPanel4.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 140, 90, -1));
 
         email.setEditable(false);
-        email.setBackground(new java.awt.Color(204, 102, 255));
+        email.setBackground(new java.awt.Color(91, 100, 193));
         email.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        email.setForeground(new java.awt.Color(255, 255, 255));
         email.setBorder(null);
         email.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 emailActionPerformed(evt);
             }
         });
-        jPanel4.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 130, 270, 30));
+        jPanel4.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 130, 270, 30));
 
-        status.setBackground(new java.awt.Color(204, 102, 255));
+        status.setBackground(new java.awt.Color(91, 100, 193));
         status.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        status.setForeground(new java.awt.Color(255, 255, 255));
         status.setBorder(null);
-        jPanel4.add(status, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 190, 270, 30));
+        status.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                statusActionPerformed(evt);
+            }
+        });
+        jPanel4.add(status, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 190, 270, 30));
 
         jLabel14.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setText("STATUS:");
         jPanel4.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 200, 80, -1));
 
-        aid.setBackground(new java.awt.Color(204, 102, 255));
+        aid.setBackground(new java.awt.Color(91, 100, 193));
         aid.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        aid.setForeground(new java.awt.Color(255, 255, 255));
         aid.setBorder(null);
-        jPanel4.add(aid, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 20, 270, 30));
+        jPanel4.add(aid, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 20, 270, 30));
 
         jLabel2.setFont(new java.awt.Font("SansSerif", 1, 20)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("ACCOUNT ID:");
         jPanel4.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 20, 140, 30));
 
@@ -190,31 +215,32 @@ public class profile extends javax.swing.JFrame {
 
         jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 770, 280));
 
-        jPanel5.setBackground(new java.awt.Color(204, 204, 255));
-        jPanel5.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 4, true));
-        jPanel5.addMouseListener(new java.awt.event.MouseAdapter() {
+        data.setBackground(new java.awt.Color(91, 100, 193));
+        data.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
+        data.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jPanel5MouseEntered(evt);
+                dataMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                jPanel5MouseExited(evt);
+                dataMouseExited(evt);
             }
         });
-        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        data.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/data.png"))); // NOI18N
-        jPanel5.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 240, 170));
+        data.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 240, 170));
 
         jLabel12.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel12.setText("DATA'S");
-        jPanel5.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 180, 240, -1));
+        data.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 180, 240, -1));
 
-        jPanel2.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 350, 240, 210));
+        jPanel2.add(data, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 350, 240, 210));
 
-        editprofile.setBackground(new java.awt.Color(204, 204, 255));
-        editprofile.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 4, true));
+        editprofile.setBackground(new java.awt.Color(91, 100, 193));
+        editprofile.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         editprofile.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 editprofileMouseClicked(evt);
@@ -228,12 +254,14 @@ public class profile extends javax.swing.JFrame {
         });
         editprofile.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit.png"))); // NOI18N
         jLabel11.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         editprofile.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 240, 210));
 
         jLabel13.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setText("EDIT PROFILE");
         jLabel13.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -261,9 +289,10 @@ public class profile extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+    private int xMouse, yMouse;
+      
     private void lnameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lnameActionPerformed
-        // TODO add your handling code here:
+       
     }//GEN-LAST:event_lnameActionPerformed
 
     private void jPanel3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel3MouseEntered
@@ -278,13 +307,13 @@ public class profile extends javax.swing.JFrame {
 
     }//GEN-LAST:event_unameActionPerformed
 
-    private void jPanel5MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel5MouseEntered
-        jPanel5.setBackground(new java.awt.Color(102, 102, 255));
-    }//GEN-LAST:event_jPanel5MouseEntered
+    private void dataMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dataMouseEntered
+        data.setBackground(new java.awt.Color(102, 102, 255));
+    }//GEN-LAST:event_dataMouseEntered
 
-    private void jPanel5MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel5MouseExited
-        jPanel5.setBackground(new java.awt.Color(204,204,255));
-    }//GEN-LAST:event_jPanel5MouseExited
+    private void dataMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dataMouseExited
+        data.setBackground(new java.awt.Color(204,204,255));
+    }//GEN-LAST:event_dataMouseExited
 
     private void jLabel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseClicked
 
@@ -292,19 +321,10 @@ public class profile extends javax.swing.JFrame {
 
     private void editprofileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editprofileMouseClicked
                                         
-    // Create the instance of the edit form we created earlier
-    editprofile ep = new editprofile();
-    ep.setVisible(true);
-    this.dispose();
-    
-    // Refresh the current Profile frame once the Edit window is closed
-    ep.addWindowListener(new java.awt.event.WindowAdapter() {
-        @Override
-        public void windowClosed(java.awt.event.WindowEvent windowEvent) {
-            // Re-run the display logic to show updated names/images
-            refreshProfileDisplay(); 
-        }
-    });
+   editprofile ep = new editprofile();
+   ep.displayUserDetails(); // <--- THIS LOADS THE SESSION DATA
+   ep.setVisible(true);
+   this.dispose();
 
         
     }//GEN-LAST:event_editprofileMouseClicked
@@ -367,6 +387,21 @@ public class profile extends javax.swing.JFrame {
 
     }//GEN-LAST:event_backMouseClicked
 
+    private void statusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statusActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_statusActionPerformed
+
+    private void jPanel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MousePressed
+      xMouse = evt.getX();
+      yMouse = evt.getY();
+    }//GEN-LAST:event_jPanel1MousePressed
+
+    private void jPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseDragged
+    int x = evt.getXOnScreen();
+    int y = evt.getYOnScreen();
+    this.setLocation(x - xMouse, y - yMouse);
+    }//GEN-LAST:event_jPanel1MouseDragged
+
     /**
      * @param args the command line arguments
      */
@@ -405,6 +440,7 @@ public class profile extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField aid;
     private javax.swing.JLabel back;
+    private javax.swing.JPanel data;
     private javax.swing.JPanel editprofile;
     private javax.swing.JTextField email;
     private javax.swing.JTextField fname;
@@ -421,7 +457,6 @@ public class profile extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JTextField lname;
     private javax.swing.JTextField status;
     private javax.swing.JTextField uname;

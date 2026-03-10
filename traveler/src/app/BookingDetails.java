@@ -19,11 +19,14 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import dashboard.customerDashboard;
-import java.awt.Image;
+
 
 // JAVA & SWING Imports
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -38,41 +41,52 @@ public class BookingDetails extends javax.swing.JFrame {
     private List<config.VanModel> bookedVans;
     private List<String> bookedStops;
     
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    
     public BookingDetails(String bid, String cName, String p, String d, String s, String e, String t, String stat, List<config.VanModel> vans, List<String> stops) {
     initComponents();
-   this.bookedVans = vans;
+    this.bookedVans = vans;
     this.bookedStops = stops;
     
     // Set Fields
     bookId.setText(bid);       
-    customerName.setText(cName);
-    pickup.setText(p);
-    finall.setText(d);
-    stat_date.setText(s);
-    end_date.setText(e);
-    total.setText(t);
-    status.setText(stat);
+        customerName.setText(cName);
+        pickup.setText(p);
+        finall.setText(d);
+        total.setText(t);
+        status.setText(stat);
 
-    // LOGIC FOR HEADER AND REBOOKING
-    if (stat.equalsIgnoreCase("Cancelled") || stat.equalsIgnoreCase("Completed")) {
-        header.setText("BOOKING HISTORY"); // Dynamic Header
-        edit.setVisible(false);
-        download.setVisible(stat.equalsIgnoreCase("Completed")); // Only allow download if trip happened
+        // --- UPDATED: Setting JDateChooser Dates ---
+        try {
+            Date startDate = dateFormat.parse(s);
+            Date endDate = dateFormat.parse(e);
+            stat_date.setDate(startDate);
+            end_date.setDate(endDate);
+        } catch (Exception ex) {
+            System.out.println("Date Parsing Error: " + ex.getMessage());
+        }
+
+        if (stat.equalsIgnoreCase("Cancelled") || stat.equalsIgnoreCase("Completed")) {
+            header.setText("BOOKING HISTORY");
+            edit.setVisible(false);
+            download.setVisible(stat.equalsIgnoreCase("Completed"));
+            jLabel9.setText("Rebook Trip");
+            cancel.setBackground(new java.awt.Color(0, 153, 51));
+            status.setForeground(stat.equalsIgnoreCase("Cancelled") ? java.awt.Color.RED : new java.awt.Color(0, 102, 204));
+        } else {
+            header.setText("BOOKING DETAILS");
+            status.setForeground(java.awt.Color.BLACK);
+        }
+
+        lockFields();
+        displayVans();      
+        displayStopovers(); 
+        this.setLocationRelativeTo(null);
         
-        jLabel9.setText("Rebook Trip");
-        cancel.setBackground(new java.awt.Color(0, 153, 51)); // Success Green
-        
-        status.setForeground(stat.equalsIgnoreCase("Cancelled") ? java.awt.Color.RED : new java.awt.Color(0, 102, 204));
-    } else {
-        header.setText("BOOKING DETAILS");
-        status.setForeground(java.awt.Color.BLACK);
+        // Prevents selecting any date before today
+        stat_date.setMinSelectableDate(new Date()); 
+        end_date.setMinSelectableDate(new Date());
     }
-
-    lockFields();
-    displayVans();      
-    displayStopovers(); 
-    this.setLocationRelativeTo(null);
-}
 
     
     private void lockFields() {
@@ -80,12 +94,38 @@ public class BookingDetails extends javax.swing.JFrame {
         customerName.setEditable(false);
         pickup.setEditable(false);
         finall.setEditable(false);
-        stat_date.setEditable(false);
-        end_date.setEditable(false);
+        stat_date.setEnabled(false); // Use setEnabled for JDateChooser
+        end_date.setEnabled(false);
         total.setEditable(false);
         status.setEditable(false);
     }
+    
+    private double calculateNewTotal(long days) {
+        double ratePerDay = 2500.00; // Base rate per van
+        double stopoverTotal = 0;
 
+        for (int i = 0; i < stopoverTable.getRowCount(); i++) {
+            try {
+                String priceStr = stopoverTable.getValueAt(i, 1).toString().replace("₱", "").trim();
+                stopoverTotal += Double.parseDouble(priceStr);
+            } catch (Exception e) {
+                stopoverTotal += 0;
+            }
+        }
+        return (ratePerDay * bookedVans.size() * days) + stopoverTotal;
+    }
+    
+private void releaseVans() {
+    config.dbConnector connector = config.dbConnector.getInstance();
+    for (config.VanModel van : bookedVans) {
+        // Sets van to Available UNLESS admin manually flagged it for maintenance
+        String query = "UPDATE tbl_vans SET v_status = 'Available' "
+                     + "WHERE v_id = '" + van.getVid() + "' "
+                     + "AND v_status != 'Under Maintenance'";
+        connector.updateData(query);
+    }
+}
+    
 private void displayVans() {
     javax.swing.JPanel container = new javax.swing.JPanel();
     container.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 30, 20));
@@ -142,35 +182,27 @@ private void displayVans() {
     vandisplay.setViewportView(container);
 }
 
-    private void displayStopovers() {
+   private void displayStopovers() {
         DefaultTableModel model = (DefaultTableModel) stopoverTable.getModel();
-        // Ensure table has columns defined
         model.setColumnIdentifiers(new String[]{"Location Name", "Price"});
         model.setRowCount(0);
 
         for (String stop : bookedStops) {
-            // Assuming format: "Location Name - ₱Price [ID]"
             try {
                 String name = stop.split("-")[0].trim();
                 String price = stop.substring(stop.indexOf("₱"));
                 model.addRow(new Object[]{name, price});
             } catch (Exception ex) {
-                model.addRow(new Object[]{stop, ""});
+                model.addRow(new Object[]{stop, "₱0.00"});
             }
         }
     }
     
 private void addInfoRow(PdfPTable table, String label, String value) {
-    com.itextpdf.text.Font bold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
-    com.itextpdf.text.Font normal = FontFactory.getFont(FontFactory.HELVETICA, 12);
-    
-    PdfPCell cell1 = new PdfPCell(new Phrase(label, bold));
-    cell1.setPadding(5);
-    table.addCell(cell1);
-    
-    PdfPCell cell2 = new PdfPCell(new Phrase(value, normal));
-    cell2.setPadding(5);
-    table.addCell(cell2);
+        com.itextpdf.text.Font bold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
+        com.itextpdf.text.Font normal = FontFactory.getFont(FontFactory.HELVETICA, 12);
+        table.addCell(new PdfPCell(new Phrase(label, bold)));
+        table.addCell(new PdfPCell(new Phrase(value, normal)));
 }
     
     @SuppressWarnings("unchecked")
@@ -191,9 +223,9 @@ private void addInfoRow(PdfPTable table, String label, String value) {
         jLabel4 = new javax.swing.JLabel();
         finall = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        stat_date = new javax.swing.JTextField();
+        stat_date = new com.toedter.calendar.JDateChooser();
         jLabel6 = new javax.swing.JLabel();
-        end_date = new javax.swing.JTextField();
+        end_date = new com.toedter.calendar.JDateChooser();
         jLabel7 = new javax.swing.JLabel();
         total = new javax.swing.JTextField();
         download = new javax.swing.JPanel();
@@ -211,7 +243,7 @@ private void addInfoRow(PdfPTable table, String label, String value) {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(12, 33, 74));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(76, 143, 209));
@@ -220,7 +252,7 @@ private void addInfoRow(PdfPTable table, String label, String value) {
         header.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
         header.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         header.setText("BOOKING DETAILS");
-        jPanel2.add(header, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 790, 30));
+        jPanel2.add(header, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 760, 30));
 
         jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/goback.png"))); // NOI18N
         jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -233,7 +265,7 @@ private void addInfoRow(PdfPTable table, String label, String value) {
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 980, 60));
 
         vandisplay.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.add(vandisplay, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 980, 330));
+        jPanel1.add(vandisplay, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 850, 330));
 
         stopoverTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -245,41 +277,50 @@ private void addInfoRow(PdfPTable table, String label, String value) {
         ));
         jScrollPane2.setViewportView(stopoverTable);
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 430, -1, 160));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 430, -1, 160));
 
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("STOPOVERS");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 400, 250, -1));
         jPanel1.add(pickup, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 510, 160, -1));
 
         jLabel2.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("BOOKING DETAILS");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 400, 230, -1));
 
         jLabel3.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Pick-up Location :");
         jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 510, 130, -1));
 
         jLabel4.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Final Destination : ");
         jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 540, 140, -1));
         jPanel1.add(finall, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 540, 160, -1));
 
         jLabel5.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Start Date :");
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 570, 100, -1));
         jPanel1.add(stat_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 570, 160, -1));
 
         jLabel6.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("End Date :");
         jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 600, 90, -1));
         jPanel1.add(end_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 600, 160, -1));
 
         jLabel7.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("Total Cost : ");
         jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 630, 90, -1));
         jPanel1.add(total, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 630, 160, -1));
 
+        download.setBackground(new java.awt.Color(20, 20, 130));
+        download.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         download.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 downloadMouseClicked(evt);
@@ -288,12 +329,15 @@ private void addInfoRow(PdfPTable table, String label, String value) {
         download.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel8.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("Download");
-        download.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 110, 30));
+        download.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 140, 20));
 
-        jPanel1.add(download, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 680, 110, 30));
+        jPanel1.add(download, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 710, 140, 40));
 
+        cancel.setBackground(new java.awt.Color(20, 20, 130));
+        cancel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         cancel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 cancelMouseClicked(evt);
@@ -302,12 +346,15 @@ private void addInfoRow(PdfPTable table, String label, String value) {
         cancel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel9.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("Cancel Booking");
-        cancel.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 170, 30));
+        cancel.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 180, 20));
 
-        jPanel1.add(cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 630, 180, 30));
+        jPanel1.add(cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 710, 180, 40));
 
+        edit.setBackground(new java.awt.Color(20, 20, 130));
+        edit.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         edit.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 editMouseClicked(evt);
@@ -316,105 +363,150 @@ private void addInfoRow(PdfPTable table, String label, String value) {
         edit.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel10.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
         jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel10.setText("Edit Booking");
-        edit.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 30));
+        edit.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 160, 20));
 
-        jPanel1.add(edit, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 630, 160, 30));
+        jPanel1.add(edit, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 710, 160, 40));
 
         jLabel11.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setText("Status :");
         jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 660, 60, -1));
         jPanel1.add(status, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 660, 160, 30));
 
         jLabel12.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setText("Booking ID :");
         jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 440, -1, -1));
-        jPanel1.add(bookId, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 440, 160, -1));
+        jPanel1.add(bookId, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 430, 160, 30));
 
         jLabel13.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
         jLabel13.setText("Customer Name :");
         jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 480, -1, -1));
-        jPanel1.add(customerName, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 480, 160, -1));
+        jPanel1.add(customerName, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 470, 160, 30));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 848, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 801, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 761, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void editMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editMouseClicked
-                               
-    if (jLabel10.getText().equals("Edit Booking")) {
-        pickup.setEditable(true);
-        finall.setEditable(true);
-        stat_date.setEditable(true);
-        end_date.setEditable(true);
-        jLabel10.setText("Save Changes");
-    } else {
-        // --- ACTUAL SQL UPDATE LOGIC ---
-        String bid = bookId.getText(); // Get the REAL ID from the label
-        String p = pickup.getText();
-        String d = finall.getText();
-        String s = stat_date.getText();
-        String e = end_date.getText();
+                                     
+        if (jLabel10.getText().equals("Edit Booking")) {
+            pickup.setEditable(true);
+            finall.setEditable(true);
+            stat_date.setEnabled(true); 
+            end_date.setEnabled(true);
+            jLabel10.setText("Save Changes");
+        } else {
+            Date sDate = stat_date.getDate();
+            Date eDate = end_date.getDate();
 
-        config.dbConnector connector = config.dbConnector.getInstance();
-        String query = "UPDATE tbl_bookings SET pick_up = '" + p + "', destination = '" + d + 
-                       "', start_date = '" + s + "', end_date = '" + e + "' WHERE b_id = '" + bid + "'";
+            // 1. Validation
+            if (sDate == null || eDate == null) {
+                JOptionPane.showMessageDialog(this, "Please select both dates.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (eDate.before(sDate)) {
+                JOptionPane.showMessageDialog(this, "End Date cannot be before Start Date!", "Date Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-        if (connector.updateData(query)) {
-            lockFields();
-            jLabel10.setText("Edit Booking");
-            JOptionPane.showMessageDialog(this, "Booking #" + bid + " updated successfully!");
+            // 2. Calculate Duration and Price
+            long diffInMillies = Math.abs(eDate.getTime() - sDate.getTime());
+            long diffInDays = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS) + 1;
+            double newPrice = calculateNewTotal(diffInDays);
+            String formattedPrice = "₱" + String.format("%.2f", newPrice);
+
+            // 3. --- NEW: CONFIRMATION DIALOG ---
+            String message = "Updated Trip Duration: " + diffInDays + " day(s)\n" +
+                             "New Calculated Total: " + formattedPrice + "\n\n" +
+                             "Do you want to save these changes?";
+            
+            int confirm = JOptionPane.showConfirmDialog(this, message, "Confirm Changes", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                // 4. SQL Update
+                String bid = bookId.getText();
+                String sStr = dateFormat.format(sDate);
+                String eStr = dateFormat.format(eDate);
+
+                config.dbConnector connector = config.dbConnector.getInstance();
+                String query = "UPDATE tbl_bookings SET pick_up = '" + pickup.getText() + 
+                               "', destination = '" + finall.getText() + 
+                               "', start_date = '" + sStr + 
+                               "', end_date = '" + eStr + 
+                               "', total_price = '" + newPrice + "' WHERE b_id = '" + bid + "'";
+
+                if (connector.updateData(query)) {
+                    total.setText(formattedPrice); // Update UI text field
+                    lockFields();
+                    jLabel10.setText("Edit Booking");
+                    JOptionPane.showMessageDialog(this, "Booking updated successfully!");
+                }
+            }
         }
-    }
-
-
+    
     }//GEN-LAST:event_editMouseClicked
 
     private void cancelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelMouseClicked
-                                       
-    config.dbConnector connector = config.dbConnector.getInstance();
-    String id = bookId.getText();
-
-    if (jLabel9.getText().equals("Cancel Booking")) {
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to cancel this booking?", "Confirm Cancellation", JOptionPane.YES_NO_OPTION);
+                                   
+    // Check if the label says Cancel (this handles the Rebook toggle logic)
+    if (jLabel9.getText().equalsIgnoreCase("Cancel Booking")) {
+        
+        // 1. Double-check with the user
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to cancel this booking?\nThis will release all reserved vans.", 
+            "Confirm Cancellation", 
+            JOptionPane.YES_NO_OPTION, 
+            JOptionPane.WARNING_MESSAGE);
         
         if (confirm == JOptionPane.YES_OPTION) {
-            // 1. Update Booking Status to Cancelled
-            String updateBooking = "UPDATE tbl_bookings SET status = 'Cancelled' WHERE b_id = '" + id + "'";
+            config.dbConnector connector = config.dbConnector.getInstance();
+            String bid = bookId.getText();
+
+            // 2. Update the Booking Table
+            String updateBookingQuery = "UPDATE tbl_bookings SET status = 'Cancelled' WHERE b_id = '" + bid + "'";
             
-            if (connector.updateData(updateBooking)) {
+            if (connector.updateData(updateBookingQuery)) {
                 
-                // 2. Loop through bookedVans and set each van back to 'Available'
-                for (config.VanModel van : bookedVans) {
-                    // Assuming your VanModel has an ID getter like getVid()
-                    String updateVan = "UPDATE tbl_vans SET v_status = 'Available' WHERE v_id = '" + van.getVid() + "'";
-                    connector.updateData(updateVan);
-                }
+                // 3. Update the Fleet (The Van Table)
+                releaseVans();
                 
-                JOptionPane.showMessageDialog(this, "Booking Cancelled and Vans are now Available.");
+                // 4. Update UI and Notify
+                status.setText("Cancelled");
+                status.setForeground(java.awt.Color.RED);
+                edit.setVisible(false); // Hide edit button for cancelled trips
                 
-                // Refresh UI
-                new customerDashboard().setVisible(true);
+                JOptionPane.showMessageDialog(this, "Booking successfully cancelled and fleet updated.");
+                
+                // 5. Redirect back to Dashboard
+                new dashboard.customerDashboard().setVisible(true);
                 this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Database Error: Could not update booking status.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-    } else {
-        // ... Your existing REBOOKING logic ...
-        // (Note: If rebooking, you should set vans to 'Booked' again here)
+    } else if (jLabel9.getText().equalsIgnoreCase("Rebook Trip")) {
+        // Optional: Logic to send user back to the booking selection screen
+        JOptionPane.showMessageDialog(this, "Redirecting to booking page...");
     }
 
 
+
+    
 
 
 
@@ -422,72 +514,57 @@ private void addInfoRow(PdfPTable table, String label, String value) {
 
     private void downloadMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_downloadMouseClicked
                                       
+                                        
+    // 1. Initial Check: Don't allow download if the booking isn't ready
+    if (status.getText().equalsIgnoreCase("Cancelled")) {
+        JOptionPane.showMessageDialog(this, "Cannot download receipt for a cancelled booking.");
+        return;
+    }
+
     com.itextpdf.text.Document document = new com.itextpdf.text.Document(PageSize.A4);
     
     try {
-        String path = System.getProperty("user.home") + "/Downloads/Receipt_Booking_" + bookId.getText() + ".pdf";
+        // Create the file path
+        String fileName = "Receipt_Booking_" + bookId.getText() + ".pdf";
+        String path = System.getProperty("user.home") + "/Downloads/" + fileName;
         PdfWriter.getInstance(document, new FileOutputStream(path));
+        
         document.open();
 
-        // --- 1. COMPANY HEADER ---
-        try {
-            java.net.URL logoURL = getClass().getResource("/icons/logo.png"); // Ensure path is correct
-            if (logoURL != null) {
-                com.itextpdf.text.Image logo = com.itextpdf.text.Image.getInstance(logoURL);
-                logo.scaleToFit(80, 80);
-                logo.setAlignment(Element.ALIGN_CENTER);
-                document.add(logo);
-            }
-        } catch (Exception e) { /* Skip logo if not found */ }
+        // --- 1. HEADER ---
+        Paragraph companyName = new Paragraph("VAN GO TRAVEL & TOURS", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22));
+        companyName.setAlignment(Element.ALIGN_CENTER);
+        document.add(companyName);
+        
+        Paragraph subHeader = new Paragraph("Official Trip Receipt\nGenerated on: " + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()) + "\n\n");
+        subHeader.setAlignment(Element.ALIGN_CENTER);
+        document.add(subHeader);
 
-        Paragraph headerName = new Paragraph("VAN GO TRAVEL & TOURS", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20));
-        headerName.setAlignment(Element.ALIGN_CENTER);
-        document.add(headerName);
-        document.add(new Paragraph("Official Trip Receipt\n\n", FontFactory.getFont(FontFactory.HELVETICA, 12)));
-
-        // --- 2. VAN IMAGES SECTION ---
-        document.add(new Paragraph("SELECTED VEHICLES", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        // --- 2. VEHICLE DETAILS ---
+        document.add(new Paragraph("VEHICLE SUMMARY", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
         document.add(new Paragraph(" "));
         
-        PdfPTable vanTable = new PdfPTable(bookedVans.size());
+        PdfPTable vanTable = new PdfPTable(2); // 2 columns: Image and Model Name
         vanTable.setWidthPercentage(100);
         
         for (config.VanModel van : bookedVans) {
-          try {
-    String vPath = van.getVimage();
-    // 1. Clean the path (remove "src" if it exists)
-    String resPath = vPath.startsWith("src") ? vPath.substring(3) : vPath;
-    if (!resPath.startsWith("/")) resPath = "/" + resPath;
-    
-    java.net.URL vUrl = getClass().getResource(resPath);
-    
-    // 2. Use the fully qualified name for the iText Image class
-    com.itextpdf.text.Image pdfImg;
-    
-    if (vUrl != null) {
-        // Load from project resources (JAR compatible)
-        pdfImg = com.itextpdf.text.Image.getInstance(vUrl);
-    } else {
-        // Fallback to absolute file path
-        pdfImg = com.itextpdf.text.Image.getInstance(vPath);
-    }
-    
-    pdfImg.scaleToFit(140, 100);
-    
-    PdfPCell cell = new PdfPCell();
-    cell.addElement(pdfImg);
-    cell.addElement(new Paragraph(van.getModel(), FontFactory.getFont(FontFactory.HELVETICA, 10)));
-    cell.setBorder(Rectangle.NO_BORDER);
-    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-    vanTable.addCell(cell);
-    
-} catch (Exception e) {
-    // If the image absolutely cannot be found, add a text placeholder so the PDF doesn't crash
-    PdfPCell errorCell = new PdfPCell(new Phrase("Image Error: " + van.getModel()));
-    errorCell.setBorder(Rectangle.NO_BORDER);
-    vanTable.addCell(errorCell);
-    System.out.println("PDF Image Error for " + van.getModel() + ": " + e.getMessage());
-}
+            try {
+                // Image Cell
+                com.itextpdf.text.Image pdfImg = com.itextpdf.text.Image.getInstance(van.getVimage());
+                pdfImg.scaleToFit(100, 70);
+                PdfPCell imgCell = new PdfPCell(pdfImg);
+                imgCell.setBorder(Rectangle.NO_BORDER);
+                vanTable.addCell(imgCell);
+                
+                // Text Cell
+                PdfPCell textCell = new PdfPCell(new Phrase(van.getModel(), FontFactory.getFont(FontFactory.HELVETICA, 12)));
+                textCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                textCell.setBorder(Rectangle.NO_BORDER);
+                vanTable.addCell(textCell);
+            } catch (Exception e) {
+                vanTable.addCell(new Phrase("Image Missing"));
+                vanTable.addCell(new Phrase(van.getModel()));
+            }
         }
         document.add(vanTable);
         document.add(new Paragraph("\n"));
@@ -496,46 +573,44 @@ private void addInfoRow(PdfPTable table, String label, String value) {
         PdfPTable infoTable = new PdfPTable(2);
         infoTable.setWidthPercentage(100);
         
-        // Currency Styling for Total
-        com.itextpdf.text.Font priceFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLUE);
-
         addInfoRow(infoTable, "Booking ID:", bookId.getText());
         addInfoRow(infoTable, "Customer Name:", customerName.getText());
-        addInfoRow(infoTable, "Pick-up Location:", pickup.getText());
-        addInfoRow(infoTable, "Destination:", finall.getText());
-        addInfoRow(infoTable, "Travel Dates:", stat_date.getText() + " to " + end_date.getText());
+        addInfoRow(infoTable, "Route:", pickup.getText() + " to " + finall.getText());
+        addInfoRow(infoTable, "Travel Dates:", dateFormat.format(stat_date.getDate()) + " to " + dateFormat.format(end_date.getDate()));
         
-        // Custom Row for Total Price
-        PdfPCell totalLabel = new PdfPCell(new Phrase("TOTAL AMOUNT:", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        // Highlight Total
+        PdfPCell totalLabel = new PdfPCell(new Phrase("TOTAL PAID:", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
         totalLabel.setBackgroundColor(BaseColor.LIGHT_GRAY);
         infoTable.addCell(totalLabel);
         
-        PdfPCell totalVal = new PdfPCell(new Phrase(total.getText(), priceFont));
+        PdfPCell totalVal = new PdfPCell(new Phrase(total.getText(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLUE)));
         totalVal.setBackgroundColor(BaseColor.LIGHT_GRAY);
         infoTable.addCell(totalVal);
         
         document.add(infoTable);
 
-        // --- 4. STOPOVERS TABLE ---
-        document.add(new Paragraph("\nSTOPOVERS", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
-        PdfPTable stopTable = new PdfPTable(2);
-        stopTable.setWidthPercentage(100);
-        stopTable.setSpacingBefore(5f);
-
-        stopTable.addCell(new PdfPCell(new Phrase("Location", FontFactory.getFont(FontFactory.HELVETICA_BOLD))));
-        stopTable.addCell(new PdfPCell(new Phrase("Surcharge", FontFactory.getFont(FontFactory.HELVETICA_BOLD))));
-
-        for (int i = 0; i < stopoverTable.getRowCount(); i++) {
-            stopTable.addCell(stopoverTable.getValueAt(i, 0).toString());
-            stopTable.addCell(stopoverTable.getValueAt(i, 1).toString());
+        // --- 4. STOPOVERS ---
+        if (stopoverTable.getRowCount() > 0) {
+            document.add(new Paragraph("\nSTOPOVERS", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+            PdfPTable stopTable = new PdfPTable(2);
+            stopTable.setWidthPercentage(100);
+            for (int i = 0; i < stopoverTable.getRowCount(); i++) {
+                stopTable.addCell(stopoverTable.getValueAt(i, 0).toString());
+                stopTable.addCell(stopoverTable.getValueAt(i, 1).toString());
+            }
+            document.add(stopTable);
         }
-        document.add(stopTable);
 
         document.close();
-        JOptionPane.showMessageDialog(this, "Complete PDF Receipt created successfully!");
+        
+        // --- 5. FINAL TOUCH: AUTO-OPEN FILE ---
+        int open = JOptionPane.showConfirmDialog(this, "Receipt saved to Downloads. Would you like to open it now?", "Success", JOptionPane.YES_NO_OPTION);
+        if (open == JOptionPane.YES_OPTION) {
+            java.awt.Desktop.getDesktop().open(new java.io.File(path));
+        }
 
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "PDF Error: " + e.getMessage());
+        JOptionPane.showMessageDialog(this, "Error generating PDF: " + e.getMessage());
     }
 
     }//GEN-LAST:event_downloadMouseClicked
@@ -567,7 +642,7 @@ java.awt.EventQueue.invokeLater(new Runnable() {
     private javax.swing.JTextField customerName;
     private javax.swing.JPanel download;
     private javax.swing.JPanel edit;
-    private javax.swing.JTextField end_date;
+    private com.toedter.calendar.JDateChooser end_date;
     private javax.swing.JTextField finall;
     private javax.swing.JLabel header;
     private javax.swing.JLabel jLabel1;
@@ -588,7 +663,7 @@ java.awt.EventQueue.invokeLater(new Runnable() {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField pickup;
-    private javax.swing.JTextField stat_date;
+    private com.toedter.calendar.JDateChooser stat_date;
     private javax.swing.JTextField status;
     private javax.swing.JTable stopoverTable;
     private javax.swing.JTextField total;

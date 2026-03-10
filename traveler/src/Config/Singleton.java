@@ -11,10 +11,11 @@ public class Singleton {
     private String username;
     private String status;
     private String address;
-    private String contact; // maps to phone_no in DB
+    private String contact; 
     private String gender;
     private String type;
     private String image;
+    private String c_status;
     private int vid;
     private String model;
     private String plate_no;
@@ -119,6 +120,14 @@ public class Singleton {
      
     public void setImage(String image){
         this.image = image;
+    }
+    
+    public String getC_status() {
+        return c_status;
+     }
+     
+    public void setC_status(String c_status){
+        this.c_status = c_status;
     }
     
     public int getVid() {

@@ -23,7 +23,22 @@ public class adminDashboard extends javax.swing.JFrame {
      * Creates new form adminDashboard
      */
     public adminDashboard() {
+        config.Session sess = config.Session.getInstance();
+    
+    // Check if a user is actually logged in
+    if (sess.getId() == 0) {
+        javax.swing.JOptionPane.showMessageDialog(null, "Please login first!");
+        new app.landingPage().setVisible(true);
+        this.dispose();
+    }
+        
+        this.setUndecorated(true);
         initComponents();
+        
+        
+        navbar.setBackground(java.awt.Color.decode("#010E22"));
+        this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
+        this.getContentPane().setBackground(java.awt.Color.decode("#010E22"));
     }
     
 public javax.swing.JDesktopPane getMainPane() {
@@ -52,9 +67,11 @@ public javax.swing.JDesktopPane getMainPane() {
         jLabel5 = new javax.swing.JLabel();
         logout = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        jPanel4 = new javax.swing.JPanel();
+        nav5 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
+        minimize = new javax.swing.JLabel();
+        close = new javax.swing.JLabel();
         mainpane = new javax.swing.JDesktopPane();
         jLabel7 = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
@@ -64,15 +81,25 @@ public javax.swing.JDesktopPane getMainPane() {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(76, 143, 209));
+        jPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jPanel1MouseDragged(evt);
+            }
+        });
+        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jPanel1MousePressed(evt);
+            }
+        });
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(76, 143, 209));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        navbar.setBackground(new java.awt.Color(153, 0, 204));
+        navbar.setBackground(new java.awt.Color(12, 33, 74));
         navbar.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        nav1.setBackground(new java.awt.Color(204, 102, 255));
+        nav1.setBackground(new java.awt.Color(2, 54, 85));
         nav1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 nav1MouseClicked(evt);
@@ -87,6 +114,7 @@ public javax.swing.JDesktopPane getMainPane() {
         nav1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("PROFILE");
         jLabel2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -94,7 +122,7 @@ public javax.swing.JDesktopPane getMainPane() {
 
         navbar.add(nav1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 150, 250, 50));
 
-        nav2.setBackground(new java.awt.Color(204, 102, 255));
+        nav2.setBackground(new java.awt.Color(2, 54, 87));
         nav2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 nav2MouseClicked(evt);
@@ -109,6 +137,7 @@ public javax.swing.JDesktopPane getMainPane() {
         nav2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel3.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("USERS");
         jLabel3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -116,7 +145,7 @@ public javax.swing.JDesktopPane getMainPane() {
 
         navbar.add(nav2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 250, 50));
 
-        nav3.setBackground(new java.awt.Color(204, 102, 255));
+        nav3.setBackground(new java.awt.Color(2, 54, 87));
         nav3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 nav3MouseEntered(evt);
@@ -128,13 +157,14 @@ public javax.swing.JDesktopPane getMainPane() {
         nav3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel4.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("BOOKING");
         nav3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(4, 14, 240, 20));
 
         navbar.add(nav3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 250, 50));
 
-        nav4.setBackground(new java.awt.Color(204, 102, 255));
+        nav4.setBackground(new java.awt.Color(2, 54, 87));
         nav4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 nav4MouseClicked(evt);
@@ -149,13 +179,14 @@ public javax.swing.JDesktopPane getMainPane() {
         nav4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel5.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("FLEET");
         nav4.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 250, 20));
 
         navbar.add(nav4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 50));
 
-        logout.setBackground(new java.awt.Color(204, 102, 255));
+        logout.setBackground(new java.awt.Color(2, 54, 87));
         logout.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 logoutMouseClicked(evt);
@@ -170,42 +201,75 @@ public javax.swing.JDesktopPane getMainPane() {
         logout.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel6.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setText("LOGOUT");
         logout.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 14, 250, 20));
 
         navbar.add(logout, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 670, 250, 50));
 
-        jPanel4.setBackground(new java.awt.Color(204, 102, 255));
-        jPanel4.addMouseListener(new java.awt.event.MouseAdapter() {
+        nav5.setBackground(new java.awt.Color(2, 54, 87));
+        nav5.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jPanel4MouseClicked(evt);
+                nav5MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                nav5MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                nav5MouseExited(evt);
             }
         });
-        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        nav5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel9.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("STOPOVERS");
-        jPanel4.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 250, -1));
+        nav5.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 250, -1));
 
-        navbar.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 60));
+        navbar.add(nav5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 250, 60));
 
         jPanel2.add(navbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 250, 720));
 
-        jPanel3.setBackground(new java.awt.Color(102, 102, 255));
+        jPanel3.setBackground(new java.awt.Color(255, 153, 153));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize.png"))); // NOI18N
+        minimize.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                minimizeMouseClicked(evt);
+            }
+        });
+        jPanel3.add(minimize, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 0, 30, 40));
+
+        close.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close.png"))); // NOI18N
+        close.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                closeMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                closeMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                closeMouseReleased(evt);
+            }
+        });
+        jPanel3.add(close, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 10, 40, 30));
+
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 0, 770, 40));
 
-        mainpane.setBackground(new java.awt.Color(154, 154, 238));
-        mainpane.setForeground(new java.awt.Color(154, 154, 238));
+        mainpane.setBackground(new java.awt.Color(255, 255, 255));
+        mainpane.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/violetbg.JPG"))); // NOI18N
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/bluegb.JPG"))); // NOI18N
         mainpane.add(jLabel7);
-        jLabel7.setBounds(0, -30, 770, 600);
+        jLabel7.setBounds(0, -10, 770, 580);
 
         jPanel2.add(mainpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 150, 770, 570));
 
-        jPanel9.setBackground(new java.awt.Color(154, 154, 238));
+        jPanel9.setBackground(new java.awt.Color(20, 20, 130));
         jPanel9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -216,10 +280,11 @@ public javax.swing.JDesktopPane getMainPane() {
         jPanel9.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 10, 60, 30));
 
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 36)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("ADMIN DASHBOARD");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jPanel9.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(251, 5, -1, -1));
+        jPanel9.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-2, 2, 770, 50));
 
         jPanel2.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 40, 770, 110));
 
@@ -239,61 +304,60 @@ public javax.swing.JDesktopPane getMainPane() {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+    private int xMouse, yMouse;
+    
     private void nav1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav1MouseClicked
-                                    
-    // Pass "Admin" so the profile knows who is logged in
+
     profile p = new profile("Admin"); 
     p.setVisible(true);
-    this.dispose(); // Use dispose instead of setVisible(false) to save memory
+    this.dispose(); 
 
     }//GEN-LAST:event_nav1MouseClicked
 
     private void nav1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav1MouseEntered
-        nav1.setBackground(new java.awt.Color(102, 102, 255));
+        nav1.setBackground(java.awt.Color.decode("#256B97"));
     }//GEN-LAST:event_nav1MouseEntered
 
     private void nav1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav1MouseExited
-        nav1.setBackground(new java.awt.Color(204,102,255));
+        nav1.setBackground(java.awt.Color.decode("#233E5C"));
     }//GEN-LAST:event_nav1MouseExited
 
     private void nav2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav2MouseClicked
        usersTable ut = new usersTable();
+       ut.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
        mainpane.add(ut).setVisible(true);
-      
-       
     }//GEN-LAST:event_nav2MouseClicked
 
     private void nav2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav2MouseEntered
-        nav2.setBackground(new java.awt.Color(102, 102, 255));
+      nav2.setBackground(java.awt.Color.decode("#256B97"));
     }//GEN-LAST:event_nav2MouseEntered
 
     private void nav2MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav2MouseExited
-        nav2.setBackground(new java.awt.Color(204,102,255));
+      nav2.setBackground(java.awt.Color.decode("#233E5C"));
     }//GEN-LAST:event_nav2MouseExited
 
     private void nav3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav3MouseEntered
-        nav3.setBackground(new java.awt.Color(102, 102, 255));
+        nav3.setBackground(java.awt.Color.decode("#256B97"));
     }//GEN-LAST:event_nav3MouseEntered
 
     private void nav3MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav3MouseExited
-        nav3.setBackground(new java.awt.Color(204,102,255));
+       nav3.setBackground(java.awt.Color.decode("#233E5C"));
     }//GEN-LAST:event_nav3MouseExited
 
     private void nav4MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav4MouseEntered
-        nav4.setBackground(new java.awt.Color(102, 102, 255));
+        nav4.setBackground(java.awt.Color.decode("#256B97"));
     }//GEN-LAST:event_nav4MouseEntered
 
     private void nav4MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav4MouseExited
-        nav4.setBackground(new java.awt.Color(204,102,255));
+        nav4.setBackground(java.awt.Color.decode("#233E5C"));
     }//GEN-LAST:event_nav4MouseExited
 
     private void logoutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseEntered
-        logout.setBackground(new java.awt.Color(102, 102, 255));
+        logout.setBackground(java.awt.Color.decode("#256B97"));
     }//GEN-LAST:event_logoutMouseEntered
 
     private void logoutMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseExited
-        logout.setBackground(new java.awt.Color(204,102,255));
+        logout.setBackground(java.awt.Color.decode("#233E5C"));
     }//GEN-LAST:event_logoutMouseExited
 
     private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
@@ -309,7 +373,7 @@ public javax.swing.JDesktopPane getMainPane() {
     }//GEN-LAST:event_nav4MouseClicked
 
     private void logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseClicked
-       
+                                     
     int response = javax.swing.JOptionPane.showConfirmDialog(
             this, 
             "Are you sure you want to logout?", 
@@ -318,22 +382,69 @@ public javax.swing.JDesktopPane getMainPane() {
             javax.swing.JOptionPane.QUESTION_MESSAGE
     );
 
-    // 2. Check if the user clicked "YES"
     if (response == javax.swing.JOptionPane.YES_OPTION) {
-        // Create the landing page instance
-        landingPage lp = new landingPage();
+        
+        config.Session sess = config.Session.getInstance();
+        sess.setId(0);
+        sess.setFirstname(null);
+        sess.setLastname(null);
+        sess.setEmail(null);
+        sess.setType(null);
+        sess.setStatus(null);
+
+        System.out.println("DEBUG: Session has been successfully cleared.");
+        app.landingPage lp = new app.landingPage();
         lp.setVisible(true);
         
-        // Close the current dashboard
+     
         this.dispose();
     }
+
     }//GEN-LAST:event_logoutMouseClicked
 
-    private void jPanel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel4MouseClicked
+    private void nav5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav5MouseClicked
         stopover s = new stopover();
         s.setVisible(true);
         dispose();
-    }//GEN-LAST:event_jPanel4MouseClicked
+    }//GEN-LAST:event_nav5MouseClicked
+
+    private void closeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseClicked
+    int confirm = javax.swing.JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "Exit", javax.swing.JOptionPane.YES_NO_OPTION);
+    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+        System.exit(0);
+    }
+    }//GEN-LAST:event_closeMouseClicked
+
+    private void minimizeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeMouseClicked
+       this.setState(ICONIFIED);
+    }//GEN-LAST:event_minimizeMouseClicked
+
+    private void jPanel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MousePressed
+      xMouse = evt.getX();
+      yMouse = evt.getY();
+    }//GEN-LAST:event_jPanel1MousePressed
+
+    private void jPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseDragged
+    int x = evt.getXOnScreen();
+    int y = evt.getYOnScreen();
+    this.setLocation(x - xMouse, y - yMouse);
+    }//GEN-LAST:event_jPanel1MouseDragged
+
+    private void nav5MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav5MouseEntered
+       nav5.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_nav5MouseEntered
+
+    private void nav5MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav5MouseExited
+       nav5.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_nav5MouseExited
+
+    private void closeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMousePressed
+      close.setForeground(java.awt.Color.RED);
+    }//GEN-LAST:event_closeMousePressed
+
+    private void closeMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseReleased
+        close.setForeground(java.awt.Color.WHITE);
+    }//GEN-LAST:event_closeMouseReleased
 
     /**
      * @param args the command line arguments
@@ -371,6 +482,7 @@ public javax.swing.JDesktopPane getMainPane() {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel close;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -383,14 +495,15 @@ public javax.swing.JDesktopPane getMainPane() {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JPanel logout;
     private javax.swing.JDesktopPane mainpane;
+    private javax.swing.JLabel minimize;
     private javax.swing.JPanel nav1;
     private javax.swing.JPanel nav2;
     private javax.swing.JPanel nav3;
     private javax.swing.JPanel nav4;
+    private javax.swing.JPanel nav5;
     private javax.swing.JPanel navbar;
     // End of variables declaration//GEN-END:variables
 }

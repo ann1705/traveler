@@ -5,14 +5,14 @@
  */
 package fleet;
 
-import app.bookingForm;
-import app.loginForm;
-import config.Session;
+
 import dashboard.customerDashboard;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.BorderFactory;
@@ -21,8 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.table.DefaultTableModel;
-import static sun.security.jgss.GSSUtil.login;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -34,7 +33,11 @@ public class fleet extends javax.swing.JFrame {
      * Creates new form fleet
      */
     public fleet() {
+        
+         this.setUndecorated(true);
         initComponents();
+        this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
+        
         displayPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 20, 20));
         loadFleet("SELECT * FROM tbl_vans");
         
@@ -49,89 +52,104 @@ public class fleet extends javax.swing.JFrame {
     }
      
   public void loadFleet(String query) {
-    displayPanel.removeAll();
-    try {
-        config.dbConnector connector = config.dbConnector.getInstance();
-        ResultSet rs = connector.getData(query);
+        displayPanel.removeAll();
+        try {
+            config.dbConnector connector = config.dbConnector.getInstance();
+            ResultSet rs = connector.getData(query);
 
-        while (rs.next()) {
-            // Get Van Data
-            String vStatus = rs.getString("status"); // Assuming 'Available' or 'Booked'
-            String vId = rs.getString("v_id");
-            String vModel = rs.getString("model");
-            String vRate = rs.getString("daily_rate");
-            String vCap = rs.getString("capacity");
-            String vPath = rs.getString("image");
+            while (rs.next()) {
+                String vStatus = rs.getString("status");
+                String vId = rs.getString("v_id");
+                String vModel = rs.getString("model");
+                String vRate = rs.getString("daily_rate");
+                String vCap = rs.getString("capacity");
+                String vPath = rs.getString("image");
 
-            // Logic check: Is the van actually bookable?
-            boolean isAvailable = vStatus.equalsIgnoreCase("Available");
+                boolean isAvailable = vStatus.equalsIgnoreCase("Available");
 
-            // --- CARD PANEL ---
-            JPanel card = new JPanel();
-            card.setPreferredSize(new Dimension(250, 320));
-            // Grey out the card if it's already booked
-            card.setBackground(isAvailable ? new Color(204, 204, 255) : new Color(225, 225, 225));
-            card.setBorder(BorderFactory.createLineBorder(isAvailable ? Color.BLACK : Color.LIGHT_GRAY, 1));
-            card.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-            // --- IMAGE HANDLING ---
-            JLabel pic = new JLabel();
-            if (vPath != null && !vPath.isEmpty()) {
-                String resPath = vPath.startsWith("src") ? vPath.substring(3) : vPath;
-                if (!resPath.startsWith("/")) resPath = "/" + resPath;
+                // --- CARD PANEL ---
+                JPanel card = new JPanel();
+                card.setPreferredSize(new Dimension(250, 320));
                 
-                java.net.URL imgURL = getClass().getResource(resPath);
-                ImageIcon icon = (imgURL != null) ? new ImageIcon(imgURL) : new ImageIcon(vPath);
+                // Color Variables
+                Color lightBlue = new Color(173, 216, 230);
+                Color hoverBlue = new Color(135, 206, 235);
+                Color bookedGrey = new Color(225, 225, 225);
+
+                card.setBackground(isAvailable ? lightBlue : bookedGrey);
+                card.setBorder(BorderFactory.createLineBorder(isAvailable ? Color.BLACK : Color.LIGHT_GRAY, 1));
+                card.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+                // --- HOVER EFFECT LOGIC ---
+                if (isAvailable) {
+                    card.addMouseListener(new MouseAdapter() {
+                        public void mouseEntered(MouseEvent e) {
+                            card.setBackground(hoverBlue);
+                            card.setBorder(BorderFactory.createLineBorder(new Color(76, 143, 209), 2));
+                        }
+                        public void mouseExited(MouseEvent e) {
+                            card.setBackground(lightBlue);
+                            card.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+                        }
+                    });
+                }
+
+                // --- IMAGE HANDLING ---
+                JLabel pic = new JLabel();
+                if (vPath != null && !vPath.isEmpty()) {
+                    // Resource path handling
+                    String resPath = vPath.startsWith("src") ? vPath.substring(3) : vPath;
+                    if (!resPath.startsWith("/")) resPath = "/" + resPath;
+                    
+                    java.net.URL imgURL = getClass().getResource(resPath);
+                    ImageIcon icon = (imgURL != null) ? new ImageIcon(imgURL) : new ImageIcon(vPath);
+                    
+                    Image img = icon.getImage().getScaledInstance(230, 150, Image.SCALE_SMOOTH);
+                    pic.setIcon(new ImageIcon(img));
+                } else {
+                    pic.setText("No Image Available");
+                    pic.setHorizontalAlignment(SwingConstants.CENTER);
+                }
+                card.add(pic, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 230, 150));
+
+                // --- LABELS ---
+                JLabel modelLabel = new JLabel("Model: " + vModel);
+                modelLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+                card.add(modelLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, 230, 20));
+
+                JLabel rateLabel = new JLabel("Daily Rate: ₱" + vRate);
+                card.add(rateLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 195, 230, 20));
                 
-                Image img = icon.getImage().getScaledInstance(230, 150, Image.SCALE_SMOOTH);
-                pic.setIcon(new ImageIcon(img));
-            } else {
-                pic.setText("No Image Available");
-                pic.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                JLabel capacityLabel = new JLabel("Capacity: " + vCap);
+                card.add(capacityLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, 230, 20));
+
+                JLabel statusLabel = new JLabel("Status: " + vStatus.toUpperCase());
+                statusLabel.setFont(new Font("SansSerif", Font.ITALIC, 12));
+                statusLabel.setForeground(isAvailable ? new Color(0, 153, 51) : Color.RED);
+                card.add(statusLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 240, 230, 20));
+
+                // --- BUTTON ---
+                JButton bookBtn = new JButton(isAvailable ? "ADD TO BOOKING" : "BOOKED");
+                bookBtn.setBackground(isAvailable ? new Color(76, 143, 209) : new Color(150, 150, 150));
+                bookBtn.setForeground(Color.WHITE);
+                bookBtn.setFocusPainted(false);
+                bookBtn.setEnabled(isAvailable);
+                
+                if (isAvailable) {
+                    bookBtn.addActionListener(e -> openBooking(vId));
+                }
+                card.add(bookBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, 150, 35));
+
+                displayPanel.add(card);
             }
-            card.add(pic, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 230, 150));
-
-            // --- LABELS ---
-            JLabel modelLabel = new JLabel("Model: " + vModel);
-            modelLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-            card.add(modelLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, 230, 20));
-
-            JLabel rateLabel = new JLabel("Daily Rate: ₱" + vRate);
-            card.add(rateLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 195, 230, 20));
-            
-            JLabel capacityLabel = new JLabel("Capacity: " + vCap);
-            card.add(capacityLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, 230, 20));
-
-            // --- STATUS INDICATOR ---
-            JLabel statusLabel = new JLabel("Status: " + vStatus.toUpperCase());
-            statusLabel.setFont(new Font("SansSerif", Font.ITALIC, 12));
-            statusLabel.setForeground(isAvailable ? new Color(0, 153, 51) : Color.RED);
-            card.add(statusLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 240, 230, 20));
-
-            // --- BUTTON LOGIC ---
-            JButton bookBtn = new JButton(isAvailable ? "ADD TO BOOKING" : "BOOKED");
-            bookBtn.setBackground(isAvailable ? new Color(76, 143, 209) : new Color(150, 150, 150));
-            bookBtn.setForeground(Color.WHITE);
-            bookBtn.setFocusPainted(false);
-            
-            // Only enable the button if the van is available
-            bookBtn.setEnabled(isAvailable);
-            
-            if (isAvailable) {
-                bookBtn.addActionListener(e -> openBooking(vId));
-            }
-            
-            card.add(bookBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, 150, 35));
-
-            displayPanel.add(card);
+        } catch (SQLException e) {
+            System.out.println("Error Loading Fleet: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        System.out.println("Error Loading Fleet: " + e.getMessage());
+        displayPanel.revalidate();
+        displayPanel.repaint();
     }
-    displayPanel.revalidate();
-    displayPanel.repaint();
-}
-    
+  
+  
 private void openBooking(String Vid) {
     config.Session sess = config.Session.getInstance();
     
@@ -183,11 +201,14 @@ private void openBooking(String Vid) {
 }
    
     @SuppressWarnings("unchecked")
+      private int xMouse, yMouse;
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
+        minimize = new javax.swing.JLabel();
+        close = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         search = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
@@ -199,10 +220,29 @@ private void openBooking(String Vid) {
         jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                formMouseDragged(evt);
+            }
+        });
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                formMousePressed(evt);
+            }
+        });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(76, 143, 209));
-        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 4));
+        jPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jPanel1MouseDragged(evt);
+            }
+        });
+        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jPanel1MousePressed(evt);
+            }
+        });
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/goback.png"))); // NOI18N
@@ -214,10 +254,34 @@ private void openBooking(String Vid) {
         });
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 20, 70, 40));
 
+        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize.png"))); // NOI18N
+        minimize.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                minimizeMouseClicked(evt);
+            }
+        });
+        jPanel1.add(minimize, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 0, 40, 60));
+
+        close.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close.png"))); // NOI18N
+        close.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                closeMouseDragged(evt);
+            }
+        });
+        close.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                closeMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                closeMousePressed(evt);
+            }
+        });
+        jPanel1.add(close, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 0, 50, 70));
+
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 990, 70));
 
-        jPanel2.setBackground(new java.awt.Color(204, 204, 255));
-        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 4));
+        jPanel2.setBackground(new java.awt.Color(12, 33, 74));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         search.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -233,8 +297,8 @@ private void openBooking(String Vid) {
         });
         jPanel2.add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 300, 30));
 
-        jPanel3.setBackground(new java.awt.Color(76, 143, 209));
-        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel3.setBackground(new java.awt.Color(20, 20, 130));
+        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
@@ -256,7 +320,8 @@ private void openBooking(String Vid) {
 
         jPanel2.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 60, 950, 470));
 
-        login.setBackground(new java.awt.Color(76, 143, 209));
+        login.setBackground(new java.awt.Color(20, 20, 130));
+        login.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         login.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 loginMouseClicked(evt);
@@ -385,6 +450,51 @@ private void openBooking(String Vid) {
     
     }//GEN-LAST:event_loginMouseClicked
 
+    private void closeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseClicked
+     int confirm = javax.swing.JOptionPane.showConfirmDialog(null, 
+            "Are you sure you want to exit?", "Exit Confirmation", 
+            javax.swing.JOptionPane.YES_NO_OPTION);
+            
+    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+        System.exit(0);
+    }
+    }//GEN-LAST:event_closeMouseClicked
+
+    private void minimizeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeMouseClicked
+        this.setState(ICONIFIED);
+    }//GEN-LAST:event_minimizeMouseClicked
+
+    private void closeMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseDragged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_closeMouseDragged
+
+    private void closeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMousePressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_closeMousePressed
+
+    private void jPanel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MousePressed
+       
+    }//GEN-LAST:event_jPanel1MousePressed
+
+    private void jPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseDragged
+   
+    }//GEN-LAST:event_jPanel1MouseDragged
+
+    private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
+         xMouse = evt.getX();
+        yMouse = evt.getY();
+    }//GEN-LAST:event_formMousePressed
+
+    private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
+           int confirm = javax.swing.JOptionPane.showConfirmDialog(null, 
+            "Are you sure you want to exit?", "Exit Confirmation", 
+            javax.swing.JOptionPane.YES_NO_OPTION);
+            
+    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+        System.exit(0);
+    }
+    }//GEN-LAST:event_formMouseDragged
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -418,6 +528,7 @@ private void openBooking(String Vid) {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel close;
     private javax.swing.JPanel displayPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -427,6 +538,7 @@ private void openBooking(String Vid) {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel login;
+    private javax.swing.JLabel minimize;
     private javax.swing.JTextField search;
     private javax.swing.JLabel statusMsg;
     // End of variables declaration//GEN-END:variables

@@ -8,77 +8,141 @@ package internalPages;
 import app.addForm;
 import app.editprofile;
 import config.dbConnector;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 import javax.swing.table.DefaultTableModel;
 
+
 /**
  *
  * @author RageKing
  */
 public class usersTable extends javax.swing.JInternalFrame {
-
-    /**
-     * Creates new form usersTable
-     */
+   
     public usersTable() {
         initComponents();
+        usertable.setToolTipText("Double-click to edit user details");
         displayData();
         
-      
+        // 1. Style the Table Header (Palette #4: #021C3B)
+        usertable.getTableHeader().setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14));
+        usertable.getTableHeader().setBackground(java.awt.Color.decode("#021C3B"));
+        usertable.getTableHeader().setForeground(java.awt.Color.BLACK);
+        usertable.getTableHeader().setOpaque(false);
+
+        // 2. Style the Table Body (Palette #5: #03294E)
+        usertable.setBackground(java.awt.Color.decode("#03294E"));
+        usertable.setForeground(java.awt.Color.WHITE);
+        usertable.setGridColor(java.awt.Color.decode("#233E5C"));
+        usertable.setRowHeight(30);
+
+        // 3. Selection Color (Palette #7: #256B97)
+        usertable.setSelectionBackground(java.awt.Color.decode("#256B97"));
+        usertable.setSelectionForeground(java.awt.Color.WHITE);
         
         this.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
         BasicInternalFrameUI bi = (BasicInternalFrameUI)this.getUI();
         bi.setNorthPane(null);
+        
+       
+        jScrollPane1.getViewport().setBackground(java.awt.Color.decode("#03294E"));
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        
+        // searchfield styling
+        searchfield.setBackground(java.awt.Color.decode("#233E5C")); 
+        searchfield.setForeground(java.awt.Color.WHITE);
+        searchfield.setCaretColor(java.awt.Color.WHITE); 
+        searchfield.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10)); 
+        
+        usertable.setRowSelectionAllowed(true);
+        usertable.setColumnSelectionAllowed(false);
+        usertable.setFocusable(false); 
     }
 
  
     
-   public void displayData() {
+public void displayData() {
+    // This specific override is what stops the double-click editing
+    DefaultTableModel model = new DefaultTableModel() {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; // All cells are now read-only
+        }
+    };
 
-    DefaultTableModel model = new DefaultTableModel();
-    // Re-define columns explicitly to ensure they show up
-    String[] columnNames = {"ID", "First Name", "Last Name", "Email", "Type", "Status"};
+    String[] columnNames = {"ID", "First Name", "Last Name", "Username", "Email", "Type", "Status"};
     for (String col : columnNames) {
         model.addColumn(col);
     }
 
     try {
         config.dbConnector connector = config.dbConnector.getInstance();
-        String query = "SELECT a_id, firstname, lastname, email, type, status FROM tbl_account";
+        String query = "SELECT a_id, firstname, lastname, username, email, type, status FROM tbl_account";
         java.sql.ResultSet rs = connector.getData(query);
 
-        if (rs == null) {
-            System.out.println("Error: ResultSet is null.");
-            return;
-        }
-
-        int rowCount = 0;
         while (rs.next()) {
             model.addRow(new Object[]{
                 rs.getString("a_id"),
                 rs.getString("firstname"),
                 rs.getString("lastname"),
+                rs.getString("username"),
                 rs.getString("email"),
                 rs.getString("type"),
                 rs.getString("status")
             });
-            rowCount++;
         }
-        
-        // CRITICAL: Bind the populated model to the actual UI component
         usertable.setModel(model);
-        System.out.println("Successfully loaded " + rowCount + " rows.");
 
-    } catch (SQLException ex) {
+    } catch (java.sql.SQLException ex) {
         System.out.println("SQL ERROR: " + ex.getMessage());
     }
 }
+
+
+    private void updateTable(String query) {
+    // Create a model that prevents cell editing
+    DefaultTableModel model = new DefaultTableModel() {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; // Table is read-only
+        }
+    };
+
+    // Define columns to match your displayData()
+    String[] columnNames = {"ID", "First Name", "Last Name", "Username", "Email", "Type", "Status"};
+    for (String col : columnNames) {
+        model.addColumn(col);
+    }
+
+    try {
+        config.dbConnector connector = config.dbConnector.getInstance();
+        java.sql.ResultSet rs = connector.getData(query);
+
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getString("a_id"),
+                rs.getString("firstname"),
+                rs.getString("lastname"),
+                rs.getString("username"), // Ensure this matches your DB column name
+                rs.getString("email"),
+                rs.getString("type"),
+                rs.getString("status")
+            });
+        }
+        usertable.setModel(model);
+        
+    } catch (java.sql.SQLException ex) {
+        System.out.println("Search Update Error: " + ex.getMessage());
+    }
+} 
+   
     @SuppressWarnings("unchecked")
+    
+  
+    
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -101,12 +165,12 @@ public class usersTable extends javax.swing.JInternalFrame {
         jPanel1.setBackground(new java.awt.Color(154, 154, 238));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel2.setBackground(new java.awt.Color(154, 154, 238));
+        jPanel2.setBackground(new java.awt.Color(20, 20, 130));
         jPanel2.setPreferredSize(new java.awt.Dimension(798, 602));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        add.setBackground(new java.awt.Color(204, 102, 255));
-        add.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        add.setBackground(new java.awt.Color(2, 54, 85));
+        add.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         add.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 addMouseClicked(evt);
@@ -116,14 +180,15 @@ public class usersTable extends javax.swing.JInternalFrame {
 
         jLabel1.setBackground(new java.awt.Color(204, 102, 255));
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("ADD");
         add.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
 
         jPanel2.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 90, 30));
 
-        edit.setBackground(new java.awt.Color(204, 102, 255));
-        edit.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        edit.setBackground(new java.awt.Color(2, 54, 85));
+        edit.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         edit.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 editMouseClicked(evt);
@@ -132,6 +197,7 @@ public class usersTable extends javax.swing.JInternalFrame {
         edit.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("EDIT");
         jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -143,8 +209,8 @@ public class usersTable extends javax.swing.JInternalFrame {
 
         jPanel2.add(edit, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 80, 90, 30));
 
-        delete.setBackground(new java.awt.Color(204, 102, 255));
-        delete.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        delete.setBackground(new java.awt.Color(2, 54, 85));
+        delete.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         delete.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 deleteMouseClicked(evt);
@@ -153,14 +219,15 @@ public class usersTable extends javax.swing.JInternalFrame {
         delete.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel3.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("DELETE");
         delete.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 80, 30));
 
         jPanel2.add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 80, 80, 30));
 
-        refresh.setBackground(new java.awt.Color(204, 102, 255));
-        refresh.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        refresh.setBackground(new java.awt.Color(2, 54, 85));
+        refresh.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         refresh.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 refreshMouseClicked(evt);
@@ -169,30 +236,37 @@ public class usersTable extends javax.swing.JInternalFrame {
         refresh.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel4.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("REFRESH");
         refresh.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
 
         jPanel2.add(refresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 80, 90, 30));
 
-        search.setBackground(new java.awt.Color(204, 102, 255));
-        search.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        search.setBackground(new java.awt.Color(2, 54, 85));
+        search.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         search.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         sead.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        sead.setForeground(new java.awt.Color(255, 255, 255));
         sead.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         sead.setText("SEARCH");
         search.add(sead, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 80, 30));
 
         jPanel2.add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 80, 80, 30));
 
-        searchfield.setBackground(new java.awt.Color(154, 154, 238));
+        searchfield.setBackground(new java.awt.Color(2, 54, 85));
         searchfield.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         searchfield.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         searchfield.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
         searchfield.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchfieldActionPerformed(evt);
+            }
+        });
+        searchfield.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchfieldKeyReleased(evt);
             }
         });
         jPanel2.add(searchfield, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 80, 180, 30));
@@ -215,17 +289,19 @@ public class usersTable extends javax.swing.JInternalFrame {
 
         jPanel2.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 720, 370));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 780, 530));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 780, 570));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 769, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 567, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -241,7 +317,47 @@ public class usersTable extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_addMouseClicked
 
     private void editMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editMouseClicked
-     jLabel2MouseClicked(null);
+                                   
+    int row = usertable.getSelectedRow();
+    if (row == -1) {
+        JOptionPane.showMessageDialog(null, "Please select a user to modify!");
+        return;
+    }
+
+    String targetId = usertable.getValueAt(row, 0).toString();
+
+    try {
+        config.dbConnector connector = config.dbConnector.getInstance();
+        String query = "SELECT * FROM tbl_account WHERE a_id = '" + targetId + "'";
+        java.sql.ResultSet rs = connector.getData(query);
+
+        if (rs.next()) {
+            editprofile ep = new editprofile();
+            
+            // Pass all 10 strings directly from the database result set
+            ep.populateForAdmin(
+                rs.getString("a_id"),
+                rs.getString("firstname"),
+                rs.getString("lastname"),
+                rs.getString("username"),
+                rs.getString("email"),
+                rs.getString("address"),   
+                rs.getString("gender"),    
+                rs.getString("contact"),   
+                rs.getString("civil_status"), // Fix: This correctly maps to Civil Status
+                rs.getString("status")     
+            );
+
+            ep.setVisible(true);
+            JFrame mainFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            mainFrame.dispose();
+        }
+    } catch (java.sql.SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Database Error: " + ex.getMessage());
+    }
+
+
+    
     }//GEN-LAST:event_editMouseClicked
 
     private void deleteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_deleteMouseClicked
@@ -268,71 +384,58 @@ public class usersTable extends javax.swing.JInternalFrame {
 
     private void searchfieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchfieldActionPerformed
 
-        String text = searchfield.getText();
-        config.dbConnector connector = config.dbConnector.getInstance();
-        String query = "SELECT * FROM tbl_account WHERE firstname LIKE '%" + text + "%' OR lastname LIKE '%" + text + "%'";
-
-        try (ResultSet rs = connector.getData(query)) {
-            DefaultTableModel model = (DefaultTableModel) usertable.getModel();
-            model.setRowCount(0);
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getInt("a_id"), rs.getString("firstname"), rs.getString("lastname"),
-                    rs.getString("email"), rs.getString("type"), rs.getString("status")
-                });
-            }
-        } catch (SQLException ex) {
-            System.out.println("Search Error: " + ex.getMessage());
-        }
     }//GEN-LAST:event_searchfieldActionPerformed
 
     private void usertableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usertableMouseClicked
-
+       if (evt.getClickCount() == 2) {
+           editMouseClicked(evt);
+        
+    }
     }//GEN-LAST:event_usertableMouseClicked
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
                                     
-        int row = usertable.getSelectedRow();
-        config.Session sess = config.Session.getInstance();
-        
-        if (row == -1) {
-            JOptionPane.showMessageDialog(null, "Please select a user to modify!");
-            return;
-        }
-
-        // Get the ID from the first column
-        String targetId = usertable.getValueAt(row, 0).toString();
-
-        // GUARD: Prevent Admin from editing themselves through the table 
-        // (They should use their own 'My Profile' button instead)
-        if (targetId.equals(String.valueOf(sess.getId()))) {
-            JOptionPane.showMessageDialog(null, "To edit your own account, please use the 'My Profile' settings.", "Notice", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
-        // Extract data from the table row
-        String fn = usertable.getValueAt(row, 1).toString();
-        String ln = usertable.getValueAt(row, 2).toString();
-        String em = usertable.getValueAt(row, 3).toString();
-        String ty = usertable.getValueAt(row, 4).toString(); // User Type
-        String st = usertable.getValueAt(row, 5).toString(); // Status
-
-        // Open the Edit Profile form
-        editprofile ep = new editprofile();
-        
-        // Use the specialized method we created to set 'isEditingOther' to true
-        // Note: Make sure the username is also passed if needed, 
-        // or modify populateForAdmin to fetch it via SQL in editprofile
-        ep.populateForAdmin(targetId, fn, ln, "", em, st); 
-        
-        ep.setVisible(true);
-        
-        // Close the current Dashboard/Frame to prevent window cluttering
-        JFrame mainFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        mainFrame.dispose();
+      
     
    
     }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void searchfieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchfieldKeyReleased
+                                    
+    String text = searchfield.getText().trim();
+    
+    // Create the same Non-Editable Model here
+    DefaultTableModel model = new DefaultTableModel() {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; 
+        }
+    };
+
+    String[] columnNames = {"ID", "First Name", "Last Name", "Username", "Email", "Type", "Status"};
+    for (String col : columnNames) { model.addColumn(col); }
+
+    try {
+        config.dbConnector connector = config.dbConnector.getInstance();
+        String query = "SELECT * FROM tbl_account WHERE firstname LIKE '%"+text+"%' "
+                     + "OR lastname LIKE '%"+text+"%' OR username LIKE '%"+text+"%'";
+        java.sql.ResultSet rs = connector.getData(query);
+
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getString("a_id"), rs.getString("firstname"), rs.getString("lastname"),
+                rs.getString("username"), rs.getString("email"), rs.getString("type"), rs.getString("status")
+            });
+        }
+        usertable.setModel(model);
+    } catch (java.sql.SQLException ex) {
+        System.out.println("Search Error: " + ex.getMessage());
+    }
+
+
+
+
+    }//GEN-LAST:event_searchfieldKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

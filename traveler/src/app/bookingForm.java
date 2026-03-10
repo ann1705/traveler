@@ -12,8 +12,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -29,54 +32,91 @@ public class bookingForm extends javax.swing.JFrame {
     private ArrayList<String> temporaryStopovers = new ArrayList<>();
 
   public bookingForm() {
+        this.setUndecorated(true);
     initComponents();
     
-    
+     this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
+        pickup.setEditable(true);
+        pickup.setEnabled(true);
+        pickup.setFocusable(true); // Added for keyboard focus
+        destination.setEditable(true);
+        destination.setEnabled(true);
+        destination.setFocusable(true);
+    // Initialize JDateChooser constraints
+        Date today = new Date();
+        sdate.getJCalendar().setMinSelectableDate(today);
+        edate.getJCalendar().setMinSelectableDate(today);
 
-    
-    
-    reset.addMouseListener(new java.awt.event.MouseAdapter() {
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
-        resetMouseClicked(evt);
-    }
-});
-    
-    displaySelectedVans();
-    updateCartTable();
-    loadStopovers();
-    
-    // NEW: Add listener to stoplist for real-time price calculation
-    stopoverList.addListSelectionListener(e -> {
-        if (!e.getValueIsAdjusting()) {
-            calculateGrandTotal();
-        }
-    });
-    
-    config.Session sess = config.Session.getInstance();
-    jLabel2.setText("Logged as : " + sess.getFirstname() + " " + sess.getLastname());
-    
-    calculateGrandTotal();
-}
-private void confirmBooking() {
-    config.Session sess = config.Session.getInstance();
-    config.dbConnector connector = config.dbConnector.getInstance();
-    
-    try {
-        for (config.VanModel van : sess.getSelectedVans()) {
-            String query = "INSERT INTO tbl_bookings (a_id, v_id, s_loc, total_price, status) "
-                    + "VALUES (" + sess.getId() + ", " 
-                    + van.getVid() + ", '" 
-                    + sess.getS_loc() + "', '" 
-                    + sess.getTprice() + "', 'Pending')";
-            connector.insertData(query);
-        }
+        // Real-time price calculation when dates are picked
+        sdate.addPropertyChangeListener("date", evt -> calculateGrandTotal());
+        edate.addPropertyChangeListener("date", evt -> calculateGrandTotal());
+
+        displaySelectedVans();
+        updateCartTable();
+        loadStopovers();
         
-        JOptionPane.showMessageDialog(this, "Booking confirmed!");
-        sess.clearVans(); // Reset for next time
-        new dashboard.customerDashboard().setVisible(true);
-        this.dispose();
-    } catch (Exception e) { System.out.println(e.getMessage()); }
-}
+        config.Session sess = config.Session.getInstance();
+        jLabel2.setText("Logged as : " + sess.getFirstname() + " " + sess.getLastname());
+        
+        calculateGrandTotal();
+        
+  }
+  
+  private void calculateGrandTotal() {
+        double vanDailyRateTotal = 0;
+        double stopoverTotal = 0;
+        long days = 1; 
+        config.Session sess = config.Session.getInstance();
+
+        // Calculate Days between start and end
+        if (sdate.getDate() != null && edate.getDate() != null) {
+            long diffInMillies = Math.abs(edate.getDate().getTime() - sdate.getDate().getTime());
+            days = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+            if (days <= 0) days = 1; // Minimum charge is 1 day
+        }
+
+        // Sum Van Rates
+        for (config.VanModel van : sess.getSelectedVans()) {
+            try {
+                String price = van.getDaily_rate().replace("₱", "").replace(",", "").trim();
+                vanDailyRateTotal += Double.parseDouble(price);
+            } catch (Exception e) {}
+        }
+
+        // Sum Stopover Fees
+        for (String stop : temporaryStopovers) {
+            try {
+                String pricePart = stop.substring(stop.indexOf("₱") + 1).replace(",", "").trim();
+                stopoverTotal += Double.parseDouble(pricePart);
+            } catch (Exception e) {}
+        }
+
+        double grandTotal = (vanDailyRateTotal * days) + stopoverTotal;
+        totalPriceDisplay.setText("₱" + String.format("%.2f", grandTotal));
+        sess.setTprice(String.valueOf(grandTotal));
+    }
+  private void updateCartTable() {
+        config.Session sess = config.Session.getInstance();
+        DefaultTableModel model = (DefaultTableModel) bookingTable.getModel();
+        model.setRowCount(0);
+        model.setColumnIdentifiers(new String[]{"Type", "Model / Location", "Price"});
+
+        for (VanModel van : sess.getSelectedVans()) {
+            model.addRow(new Object[]{"VAN", van.getModel(), "₱" + van.getDaily_rate()});
+        }
+        for (String stop : temporaryStopovers) {
+            String location = stop.split("-")[0].trim();
+            String price = stop.substring(stop.indexOf("₱"));
+            model.addRow(new Object[]{"STOPOVER", location, price});
+        }
+        calculateGrandTotal();
+    }
+ 
+  
+
+
+
+
 private void displaySelectedVans() {
     Session sess = Session.getInstance();
     List<VanModel> vanList = sess.getSelectedVans();
@@ -146,24 +186,7 @@ private void displaySelectedVans() {
     mainContainer.repaint();
 }
 
-public void calculateFinalTotal() {
-    config.Session sess = config.Session.getInstance();
-    double grandTotal = 0;
-
-    // Sum all vans
-    for (config.VanModel v : sess.getSelectedVans()) {
-        grandTotal += Double.parseDouble(v.getDaily_rate());
-    }
-
-    // Add stop-over fee (only once)
-    if (sess.getS_price() != null) {
-        grandTotal += Double.parseDouble(sess.getS_price());
-    }
-
-    // Update your total label
-    totalPriceDisplay.setText("₱" + String.format("%.2f", grandTotal));
-    sess.setTprice(String.valueOf(grandTotal));
-}
+ 
 
 private void loadStopovers() {
         javax.swing.DefaultListModel<String> listModel = new javax.swing.DefaultListModel<>();
@@ -179,81 +202,21 @@ private void loadStopovers() {
         }
     }
 
-public void loadBookingTable() {
-    config.Session sess = config.Session.getInstance();
-    DefaultTableModel model = (DefaultTableModel) bookingTable.getModel();
-    model.setRowCount(0); // Clear current rows
-
-    // Loop through the selected vans
-    for (config.VanModel van : sess.getSelectedVans()) {
-        model.addRow(new Object[]{
-            van.getVid(),
-            van.getModel(),
-            van.getDaily_rate(),
-            (sess.getS_loc() != null) ? sess.getS_loc() : "Select a Stop-over",
-            (sess.getS_price() != null) ? sess.getS_price() : "0.00"
-        });
-    }
-    
-    // Always call the total calculation after updating the table
-    calculateFinalTotal();
-}
-private void calculateGrandTotal() {
-        double vanTotal = 0;
-        double stopoverTotal = 0;
-        config.Session sess = config.Session.getInstance();
-
-        // 1. Van Totals
-        for (config.VanModel van : sess.getSelectedVans()) {
-            try {
-                String price = van.getDaily_rate().replace("₱", "").replace(",", "").trim();
-                vanTotal += Double.parseDouble(price);
-            } catch (Exception e) {}
-        }
-
-        // 2. Cumulative Stopover Totals (from our temporary list)
-        for (String stop : temporaryStopovers) {
-            try {
-                String pricePart = stop.substring(stop.indexOf("₱") + 1).replace(",", "").trim();
-                stopoverTotal += Double.parseDouble(pricePart);
-            } catch (Exception e) {}
-        }
-
-        double grandTotal = vanTotal + stopoverTotal;
-        totalPriceDisplay.setText("₱" + String.format("%.2f", grandTotal));
-    }
 
 
-private void updateCartTable() {
-        config.Session sess = config.Session.getInstance();
-        List<config.VanModel> cart = sess.getSelectedVans();
-        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) bookingTable.getModel();
-        
-        model.setRowCount(0);
-        model.setColumnIdentifiers(new String[]{"Type", "Model / Location", "Price"});
 
-        // Display Vans
-        for (config.VanModel van : cart) {
-            model.addRow(new Object[]{"VAN", van.getModel(), "₱" + van.getDaily_rate()});
-        }
-
-        // Display Added Stopovers
-        for (String stop : temporaryStopovers) {
-            String location = stop.split("-")[0].trim();
-            String price = stop.substring(stop.indexOf("₱"));
-            model.addRow(new Object[]{"STOPOVER", location, price});
-        }
-        
-        calculateGrandTotal();
-    }
-  
     @SuppressWarnings("unchecked")
+     private int xMouse, yMouse;
+    
+    
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
+        minimize = new javax.swing.JLabel();
+        close = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         fleetdisplay = new javax.swing.JScrollPane();
         jLabel3 = new javax.swing.JLabel();
@@ -264,9 +227,7 @@ private void updateCartTable() {
         jScrollPane2 = new javax.swing.JScrollPane();
         stopoverList = new javax.swing.JList<>();
         jLabel6 = new javax.swing.JLabel();
-        sdate = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
-        edate = new javax.swing.JTextField();
         confirm = new javax.swing.JPanel();
         jLabel13 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
@@ -283,8 +244,20 @@ private void updateCartTable() {
         jLabel17 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
+        sdate = new com.toedter.calendar.JDateChooser();
+        edate = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                formMouseDragged(evt);
+            }
+        });
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                formMousePressed(evt);
+            }
+        });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(76, 143, 209));
@@ -293,7 +266,7 @@ private void updateCartTable() {
         jLabel2.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Logged as :");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 30, 300, 30));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 30, 300, 30));
 
         jLabel16.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/goback.png"))); // NOI18N
         jLabel16.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -303,9 +276,25 @@ private void updateCartTable() {
         });
         jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 60, 40));
 
+        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize.png"))); // NOI18N
+        minimize.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                minimizeMouseClicked(evt);
+            }
+        });
+        jPanel1.add(minimize, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 10, 30, 40));
+
+        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close.png"))); // NOI18N
+        close.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                closeMouseClicked(evt);
+            }
+        });
+        jPanel1.add(close, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 10, 30, 50));
+
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 770, 70));
 
-        jPanel2.setBackground(new java.awt.Color(204, 204, 255));
+        jPanel2.setBackground(new java.awt.Color(12, 33, 74));
         jPanel2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jPanel2MouseClicked(evt);
@@ -315,20 +304,29 @@ private void updateCartTable() {
         jPanel2.add(fleetdisplay, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 340, 317));
 
         jLabel3.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Pick-up Location");
-        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 50, 150, -1));
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 40, 150, 30));
 
-        pickup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        pickup.setBackground(new java.awt.Color(2, 54, 87));
+        pickup.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        pickup.setForeground(new java.awt.Color(255, 255, 255));
+        pickup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jPanel2.add(pickup, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 40, 180, 30));
 
         jLabel4.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Final Destination");
         jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 90, -1, -1));
 
-        destination.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        destination.setBackground(new java.awt.Color(2, 54, 87));
+        destination.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        destination.setForeground(new java.awt.Color(255, 255, 255));
+        destination.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jPanel2.add(destination, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 80, 180, 30));
 
         jLabel5.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Stopover Destinations");
         jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 144, 180, 20));
 
@@ -348,19 +346,17 @@ private void updateCartTable() {
         jPanel2.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, 310, 90));
 
         jLabel6.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Start Date ");
         jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 340, 120, 20));
 
-        sdate.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jPanel2.add(sdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 330, 220, 30));
-
         jLabel7.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("End Date");
         jPanel2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 390, 80, -1));
 
-        edate.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jPanel2.add(edate, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 380, 220, 30));
-
+        confirm.setBackground(new java.awt.Color(20, 20, 130));
+        confirm.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         confirm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 confirmMouseClicked(evt);
@@ -368,7 +364,8 @@ private void updateCartTable() {
         });
         confirm.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel13.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setText("CONFIRM BOOKING");
         confirm.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(-2, 5, 180, 20));
@@ -376,9 +373,12 @@ private void updateCartTable() {
         jPanel2.add(confirm, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 620, 180, 30));
 
         jLabel14.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setText("Total Cost: ");
-        jPanel2.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 430, 100, 20));
+        jPanel2.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 430, 130, 20));
 
+        jPanel3.setBackground(new java.awt.Color(20, 20, 130));
+        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jPanel3MouseClicked(evt);
@@ -387,19 +387,23 @@ private void updateCartTable() {
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel15.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
         jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel15.setText("ADD MORE ");
-        jPanel3.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 4, 130, 30));
+        jPanel3.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 140, 20));
 
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 380, 140, 40));
 
-        totalPriceDisplay.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        totalPriceDisplay.setBackground(new java.awt.Color(2, 54, 87));
+        totalPriceDisplay.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        totalPriceDisplay.setForeground(new java.awt.Color(255, 255, 255));
+        totalPriceDisplay.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         totalPriceDisplay.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 totalPriceDisplayMouseClicked(evt);
             }
         });
-        jPanel2.add(totalPriceDisplay, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 420, 220, 30));
+        jPanel2.add(totalPriceDisplay, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 420, 210, 30));
 
         bookingTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -413,6 +417,8 @@ private void updateCartTable() {
 
         jPanel2.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, 750, 110));
 
+        add.setBackground(new java.awt.Color(20, 20, 130));
+        add.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         add.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 addMouseClicked(evt);
@@ -420,13 +426,16 @@ private void updateCartTable() {
         });
         add.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel8.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("ADD ");
-        add.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(2, 5, 80, -1));
+        add.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(2, 5, 90, -1));
 
         jPanel2.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 270, 90, 30));
 
+        reset.setBackground(new java.awt.Color(20, 20, 130));
+        reset.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         reset.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 resetMouseClicked(evt);
@@ -434,13 +443,16 @@ private void updateCartTable() {
         });
         reset.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel9.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("RESET");
-        reset.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
+        reset.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
 
-        jPanel2.add(reset, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 270, 90, 30));
+        jPanel2.add(reset, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 270, 100, 30));
 
+        removeVan.setBackground(new java.awt.Color(20, 20, 130));
+        removeVan.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         removeVan.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 removeVanMouseClicked(evt);
@@ -449,23 +461,32 @@ private void updateCartTable() {
         removeVan.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel17.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel17.setForeground(new java.awt.Color(255, 255, 255));
         jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel17.setText("REMOVE");
-        removeVan.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 100, 40));
+        removeVan.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 120, 20));
 
         jPanel2.add(removeVan, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 380, 120, 40));
 
+        jPanel4.setBackground(new java.awt.Color(20, 20, 130));
+        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jLabel10.setFont(new java.awt.Font("SansSerif", 0, 11)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
         jLabel10.setText("back to fleet");
         jLabel10.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel10MouseClicked(evt);
             }
         });
-        jPanel4.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(5, 5, 110, 20));
+        jPanel4.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(5, 5, 80, 20));
 
-        jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 130, 30));
+        jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 90, 30));
+
+        sdate.setBackground(new java.awt.Color(2, 54, 87));
+        jPanel2.add(sdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 340, 210, 30));
+        jPanel2.add(edate, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 380, 210, 30));
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 70, 770, 670));
 
@@ -487,100 +508,88 @@ private void updateCartTable() {
     
     
     private void confirmMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmMouseClicked
-   
-    // 1. Get the Session Instance (Use Session, not Singleton, for van list support)
+                                   
     config.Session sess = config.Session.getInstance();
-    int customerId = sess.getId();
     List<config.VanModel> cart = sess.getSelectedVans();
 
-    // 2. Validation
+    // 1. Validation
     if (cart.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Your cart is empty!");
         return;
     }
-    if (pickup.getText().isEmpty() || destination.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please fill in the Pick-up and Destination fields.");
+    
+    if (sdate.getDate() == null || edate.getDate() == null || pickup.getText().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please fill in the Pick-up and Date fields.");
         return;
     }
 
-    // 3. Stringify Van IDs (e.g., "1,2,3")
-    StringBuilder vanSb = new StringBuilder();
-    for (int i = 0; i < cart.size(); i++) {
-        vanSb.append(cart.get(i).getVid());
-        if (i < cart.size() - 1) vanSb.append(",");
-    }
-    String vanIds = vanSb.toString();
+    // 2. Date Formatting
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    String startDateStr = sdf.format(sdate.getDate());
+    String endDateStr = sdf.format(edate.getDate());
 
-    // 4. Stringify Stopover IDs
-    StringBuilder stopSb = new StringBuilder();
+    // 3. Prepare IDs for Database
+    StringBuilder vanIds = new StringBuilder();
+    for (int i = 0; i < cart.size(); i++) {
+        vanIds.append(cart.get(i).getVid()).append(i < cart.size() - 1 ? "," : "");
+    }
+    
+    StringBuilder stopIds = new StringBuilder();
     for (int i = 0; i < temporaryStopovers.size(); i++) {
         String val = temporaryStopovers.get(i);
-        // Extracting ID from "Location Name [ID]" format
+        // Extracts the ID inside the brackets [ID]
         String id = val.substring(val.indexOf("[") + 1, val.indexOf("]"));
-        stopSb.append(id);
-        if (i < temporaryStopovers.size() - 1) stopSb.append(",");
+        stopIds.append(id).append(i < temporaryStopovers.size() - 1 ? "," : "");
     }
-    String stopoverIds = stopSb.toString(); 
 
     try {
         config.dbConnector connector = config.dbConnector.getInstance();
-        String rawPrice = totalPriceDisplay.getText().replace("₱", "").replace(",", "").trim();
-        double finalPrice = Double.parseDouble(rawPrice);
+        // Clean currency formatting for DB
+        double finalPrice = Double.parseDouble(totalPriceDisplay.getText().replace("₱", "").replace(",", "").trim());
 
-        // 5. Insert Query
+        // 4. Insert Booking Record
         String query = "INSERT INTO tbl_bookings (a_id, van_id, pick_up, destination, stopover_id, start_date, end_date, total_price, status) "
-                     + "VALUES (" + customerId + ", '" + vanIds + "', '" + pickup.getText() + "', '" 
-                     + destination.getText() + "', '" + stopoverIds + "', '" + sdate.getText() + "', '" 
-                     + edate.getText() + "', " + finalPrice + ", 'Pending')";
+                     + "VALUES (" + sess.getId() + ", '" + vanIds + "', '" + pickup.getText() + "', '" 
+                     + destination.getText() + "', '" + stopIds + "', '" + startDateStr + "', '" 
+                     + endDateStr + "', " + finalPrice + ", 'Booked')";
         
-        // This now returns the ACTUAL b_id from the database
-        int generatedId = connector.insertData(query);
+        int b_id = connector.insertData(query);
         
-        if (generatedId > 0) {
-            JOptionPane.showMessageDialog(this, "Booking Successful! ID: " + generatedId);
+        if (b_id > 0) {
+            // 5. CRITICAL: Update the status of each selected van in tbl_vans
+            for (VanModel v : cart) {
+                String updateVanQuery = "UPDATE tbl_vans SET status = 'Booked' WHERE v_id = " + v.getVid();
+                connector.updateData(updateVanQuery);
+            }
 
-            // 6. Create Snapshot for Details Form
-            String fullName = sess.getFirstname() + " " + sess.getLastname();
-            List<config.VanModel> snapshotVans = new java.util.ArrayList<>(cart);
-            List<String> snapshotStops = new java.util.ArrayList<>(temporaryStopovers);
-
-            // Open BookingDetails with the real generatedId
-            app.BookingDetails detailsForm = new app.BookingDetails(
-                String.valueOf(generatedId),
-                fullName,
+            JOptionPane.showMessageDialog(this, "Booking Successful! ID: " + b_id);
+            
+            // 6. Open Receipt and Refresh
+            app.BookingDetails receipt = new app.BookingDetails(
+                String.valueOf(b_id),
+                sess.getFirstname() + " " + sess.getLastname(),
                 pickup.getText(),
                 destination.getText(),
-                sdate.getText(),
-                edate.getText(),
+                startDateStr,
+                endDateStr,
                 totalPriceDisplay.getText(),
-                "Pending",
-                snapshotVans,
-                snapshotStops
+                "Booked",
+                new java.util.ArrayList<>(cart),
+                new java.util.ArrayList<>(temporaryStopovers)
             );
             
-            detailsForm.setVisible(true);
-            sess.clearVans();
-            this.dispose();
+            receipt.setVisible(true);
+            sess.clearVans(); // Clear cart
+            this.dispose();   // Close booking form
         }
-        
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error processing booking: " + e.getMessage());
+        JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
     }
 
     }//GEN-LAST:event_confirmMouseClicked
 
     private void totalPriceDisplayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_totalPriceDisplayMouseClicked
-    
-    double total = 0;
-    for (config.VanModel v : config.Session.getInstance().getSelectedVans()) {
-        try {
-            // Cleans the ₱ symbol and spaces before parsing
-            String price = v.getDaily_rate().replace("₱", "").trim();
-            total += Double.parseDouble(price);
-        } catch (Exception e) { }
-    }
-    jLabel14.setText("Total Cost: ₱" + total);
-
+ 
     }//GEN-LAST:event_totalPriceDisplayMouseClicked
 
     private void addMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addMouseClicked
@@ -649,7 +658,7 @@ private void updateCartTable() {
         sess.getSelectedVans().removeIf(van -> van.getVid() == vanIdToRemove);
 
         // 4. Refresh the UI
-        loadBookingTable(); 
+        updateCartTable();
         JOptionPane.showMessageDialog(this, "Van removed from selection.");
     } else {
         JOptionPane.showMessageDialog(this, "Please select a van from the table to remove.");
@@ -667,34 +676,33 @@ private void updateCartTable() {
     }//GEN-LAST:event_stopoverListValueChanged
 
     private void stopoverListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopoverListMouseClicked
-                                         
-    // 1. Get the index of the clicked item
-    int index = stopoverList.getSelectedIndex();
-    if (index == -1) return;
-
-    // 2. Fetch data from your database or list model
-    // Assuming your list displays "Location - Price"
-    String selectedValue = stopoverList.getSelectedValue().toString();
-    
-    try {
-        // Split "Bohol - 1500" into Location and Price
-        String[] parts = selectedValue.split(" - ");
-        String location = parts[0];
-        String price = parts[1].replace("₱", "").trim();
-
-        // 3. Update Session
-        config.Session sess = config.Session.getInstance();
-        sess.setS_loc(location);
-        sess.setS_price(price);
-
-        // 4. Refresh your booking table to show the new stop-over details
-        loadBookingTable();
-        
-    } catch (Exception e) {
-        System.out.println("Error parsing stop-over: " + e.getMessage());
-    }
 
     }//GEN-LAST:event_stopoverListMouseClicked
+
+    private void closeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseClicked
+       int confirm = javax.swing.JOptionPane.showConfirmDialog(null, 
+            "Are you sure you want to exit?", "Exit Confirmation", 
+            javax.swing.JOptionPane.YES_NO_OPTION);
+            
+    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+        System.exit(0);
+    }
+    }//GEN-LAST:event_closeMouseClicked
+
+    private void minimizeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeMouseClicked
+      this.setState(ICONIFIED);
+    }//GEN-LAST:event_minimizeMouseClicked
+
+    private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
+        int x = evt.getXOnScreen();
+    int y = evt.getYOnScreen();
+    this.setLocation(x - xMouse, y - yMouse);
+    }//GEN-LAST:event_formMouseDragged
+
+    private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
+      xMouse = evt.getX();
+      yMouse = evt.getY();
+    }//GEN-LAST:event_formMousePressed
 
     /**
      * @param args the command line arguments
@@ -734,9 +742,10 @@ private void updateCartTable() {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel add;
     private javax.swing.JTable bookingTable;
+    private javax.swing.JLabel close;
     private javax.swing.JPanel confirm;
     private javax.swing.JTextField destination;
-    private javax.swing.JTextField edate;
+    private com.toedter.calendar.JDateChooser edate;
     private javax.swing.JScrollPane fleetdisplay;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel13;
@@ -758,10 +767,11 @@ private void updateCartTable() {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel minimize;
     private javax.swing.JTextField pickup;
     private javax.swing.JPanel removeVan;
     private javax.swing.JPanel reset;
-    private javax.swing.JTextField sdate;
+    private com.toedter.calendar.JDateChooser sdate;
     private javax.swing.JList<String> stopoverList;
     private javax.swing.JTextField totalPriceDisplay;
     // End of variables declaration//GEN-END:variables

@@ -18,7 +18,11 @@ public class driverDashboard extends javax.swing.JFrame {
      * Creates new form driverDashboard
      */
     public driverDashboard() {
+        this.setUndecorated(true);
         initComponents();
+        
+         navbar.setBackground(java.awt.Color.decode("#010E22"));
+        this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
     }
 
     /**
@@ -40,31 +44,50 @@ public class driverDashboard extends javax.swing.JFrame {
         logout = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
+        minimize = new javax.swing.JLabel();
+        close = new javax.swing.JLabel();
         mainpane = new javax.swing.JDesktopPane();
-        jLabel7 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(76, 143, 209));
+        jPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jPanel1MouseDragged(evt);
+            }
+        });
+        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jPanel1MousePressed(evt);
+            }
+        });
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(76, 143, 209));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        navbar.setBackground(new java.awt.Color(153, 0, 204));
+        navbar.setBackground(new java.awt.Color(12, 33, 74));
         navbar.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        nav1.setBackground(new java.awt.Color(204, 102, 255));
+        nav1.setBackground(new java.awt.Color(2, 54, 85));
         nav1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 nav1MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                nav1MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                nav1MouseExited(evt);
             }
         });
         nav1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("PROFILE");
         jLabel2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -72,25 +95,44 @@ public class driverDashboard extends javax.swing.JFrame {
 
         navbar.add(nav1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 150, 250, 50));
 
-        nav2.setBackground(new java.awt.Color(204, 102, 255));
+        nav2.setBackground(new java.awt.Color(2, 54, 85));
+        nav2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nav2MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                nav2MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                nav2MouseExited(evt);
+            }
+        });
         nav2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel4.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("BOOKING");
         nav2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(4, 14, 240, 20));
 
         navbar.add(nav2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 250, 50));
 
-        logout.setBackground(new java.awt.Color(204, 102, 255));
+        logout.setBackground(new java.awt.Color(2, 54, 85));
         logout.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 logoutMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                logoutMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                logoutMouseExited(evt);
             }
         });
         logout.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel6.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setText("LOGOUT");
         logout.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 14, 250, 20));
@@ -99,25 +141,51 @@ public class driverDashboard extends javax.swing.JFrame {
 
         jPanel2.add(navbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 250, 720));
 
-        jPanel3.setBackground(new java.awt.Color(102, 102, 255));
+        jPanel3.setBackground(new java.awt.Color(255, 153, 153));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize.png"))); // NOI18N
+        minimize.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                minimizeMouseClicked(evt);
+            }
+        });
+        jPanel3.add(minimize, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 10, 30, 20));
+
+        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close.png"))); // NOI18N
+        close.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                closeMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                closeMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                closeMouseReleased(evt);
+            }
+        });
+        jPanel3.add(close, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 10, 30, 30));
+
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 0, 770, 40));
 
-        mainpane.setBackground(new java.awt.Color(154, 154, 238));
+        mainpane.setBackground(new java.awt.Color(255, 255, 255));
         mainpane.setForeground(new java.awt.Color(154, 154, 238));
 
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/violetbg.JPG"))); // NOI18N
-        mainpane.add(jLabel7);
-        jLabel7.setBounds(0, -30, 770, 600);
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/bluegb.JPG"))); // NOI18N
+        mainpane.add(jLabel3);
+        jLabel3.setBounds(0, -10, 780, 590);
 
         jPanel2.add(mainpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 150, 770, 570));
 
-        jPanel9.setBackground(new java.awt.Color(154, 154, 238));
+        jPanel9.setBackground(new java.awt.Color(20, 20, 130));
+        jPanel9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 36)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("DRIVER'S DASHBOARD");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jPanel9.add(jLabel1);
+        jPanel9.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 770, -1));
 
         jPanel2.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 40, 770, 110));
 
@@ -137,7 +205,8 @@ public class driverDashboard extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+    private int xMouse, yMouse;
+    
     private void nav1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav1MouseClicked
          profile p = new profile("Driver");
          p.setVisible(true);
@@ -164,6 +233,64 @@ public class driverDashboard extends javax.swing.JFrame {
         this.dispose();
     }
     }//GEN-LAST:event_logoutMouseClicked
+
+    private void nav1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav1MouseExited
+        nav1.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_nav1MouseExited
+
+    private void nav1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav1MouseEntered
+        nav1.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_nav1MouseEntered
+
+    private void nav2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav2MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nav2MouseClicked
+
+    private void nav2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav2MouseEntered
+        nav2.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_nav2MouseEntered
+
+    private void nav2MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav2MouseExited
+         nav2.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_nav2MouseExited
+
+    private void logoutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseEntered
+        logout.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_logoutMouseEntered
+
+    private void logoutMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseExited
+        logout.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_logoutMouseExited
+
+    private void closeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseClicked
+    int confirm = javax.swing.JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "Exit", javax.swing.JOptionPane.YES_NO_OPTION);
+    if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+        System.exit(0);
+    }
+    }//GEN-LAST:event_closeMouseClicked
+
+    private void closeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMousePressed
+       close.setForeground(java.awt.Color.RED);
+    }//GEN-LAST:event_closeMousePressed
+
+    private void closeMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseReleased
+       close.setForeground(java.awt.Color.WHITE);
+    }//GEN-LAST:event_closeMouseReleased
+
+    private void minimizeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeMouseClicked
+         this.setState(ICONIFIED);
+    }//GEN-LAST:event_minimizeMouseClicked
+
+    private void jPanel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MousePressed
+      xMouse = evt.getX();
+      yMouse = evt.getY();
+    }//GEN-LAST:event_jPanel1MousePressed
+
+    private void jPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseDragged
+    int x = evt.getXOnScreen();
+    int y = evt.getYOnScreen();
+    this.setLocation(x - xMouse, y - yMouse);
+    }//GEN-LAST:event_jPanel1MouseDragged
 
     /**
      * @param args the command line arguments
@@ -201,17 +328,19 @@ public class driverDashboard extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel close;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JPanel logout;
     private javax.swing.JDesktopPane mainpane;
+    private javax.swing.JLabel minimize;
     private javax.swing.JPanel nav1;
     private javax.swing.JPanel nav2;
     private javax.swing.JPanel navbar;

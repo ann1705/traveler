@@ -21,6 +21,7 @@ public class Session {
     private String gender;
     private String type;
     private String image;
+    private String c_status;
     private int vid;
     private String model;
     private String plate_no;
@@ -48,7 +49,7 @@ public class Session {
         return instance;
     }
 
-    // --- YOUR NEW METHODS FOR THE 3-VAN LIMIT ---
+    // ---  NEW METHODS FOR THE 3-VAN LIMIT ---
   public List<VanModel> getSelectedVans() { return selectedVans; }
     
     public void addVan(VanModel van) {
@@ -63,7 +64,7 @@ public class Session {
         this.s_price = null;
     }
 
-    // --- YOUR EXISTING METHODS (Keep as is) ---
+    
     public static boolean isInstanceEmpty() {
         return instance == null;
     }
@@ -100,6 +101,13 @@ public class Session {
 
     public String getImage() { return image; }
     public void setImage(String image){ this.image = image; }
+    
+     public String getC_status() {
+        return c_status;
+     }
+    public void setC_status(String c_status){
+        this.c_status = c_status;
+    }
     
     public int getVid() { return vid; }
     public void setVid(int vid) { this.vid = vid; }

@@ -63,12 +63,12 @@ public class landingPage extends javax.swing.JFrame {
         });
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        text.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
+        text.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         text.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         text.setText("Explore More");
-        jPanel3.add(text, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 140, 30));
+        jPanel3.add(text, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 130, 40));
 
-        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 670, 140, 50));
+        jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 670, 130, 40));
 
         van.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         van.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/camping.jpg"))); // NOI18N
