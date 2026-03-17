@@ -178,19 +178,20 @@ public class Session {
     }
     
 public void clearSession() {
-    // Reset user info
+    // 1. Reset all fields (you already have this)
     this.id = 0;
     this.firstname = null;
     this.lastname = null;
     this.email = null;
     this.username = null;
-    
-    // Reset booking/van info
-    this.selectedVans.clear(); // Important for the 3-van limit
+    this.selectedVans.clear();
     this.s_loc = null;
     this.s_price = null;
     this.t_price = null;
     
-    System.out.println("Session Log: All data cleared for logout.");
+    // 2. THE CRITICAL STEP: Kill the singleton instance
+    instance = null; 
+    
+    System.out.println("Session Log: Instance destroyed and data cleared.");
 }
 }

@@ -165,7 +165,7 @@ public void displayData() {
         jPanel1.setBackground(new java.awt.Color(154, 154, 238));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel2.setBackground(new java.awt.Color(20, 20, 130));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setPreferredSize(new java.awt.Dimension(798, 602));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -174,6 +174,12 @@ public void displayData() {
         add.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 addMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                addMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                addMouseExited(evt);
             }
         });
         add.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -192,6 +198,12 @@ public void displayData() {
         edit.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 editMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                editMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                editMouseExited(evt);
             }
         });
         edit.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -215,6 +227,12 @@ public void displayData() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 deleteMouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                deleteMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                deleteMouseExited(evt);
+            }
         });
         delete.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -232,6 +250,12 @@ public void displayData() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 refreshMouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                refreshMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                refreshMouseExited(evt);
+            }
         });
         refresh.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -245,6 +269,14 @@ public void displayData() {
 
         search.setBackground(new java.awt.Color(2, 54, 85));
         search.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
+        search.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                searchMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                searchMouseExited(evt);
+            }
+        });
         search.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         sead.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
@@ -257,6 +289,7 @@ public void displayData() {
 
         searchfield.setBackground(new java.awt.Color(2, 54, 85));
         searchfield.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        searchfield.setForeground(new java.awt.Color(255, 255, 255));
         searchfield.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         searchfield.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
         searchfield.addActionListener(new java.awt.event.ActionListener() {
@@ -436,6 +469,46 @@ public void displayData() {
 
 
     }//GEN-LAST:event_searchfieldKeyReleased
+
+    private void addMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addMouseEntered
+        add.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_addMouseEntered
+
+    private void addMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addMouseExited
+        add.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_addMouseExited
+
+    private void editMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editMouseEntered
+       edit.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_editMouseEntered
+
+    private void editMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editMouseExited
+       edit.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_editMouseExited
+
+    private void deleteMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_deleteMouseEntered
+        delete.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_deleteMouseEntered
+
+    private void refreshMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_refreshMouseEntered
+       refresh.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_refreshMouseEntered
+
+    private void searchMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchMouseEntered
+        search.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_searchMouseEntered
+
+    private void deleteMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_deleteMouseExited
+       delete.setBackground(java.awt.Color.decode("#233E5C"));       
+    }//GEN-LAST:event_deleteMouseExited
+
+    private void refreshMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_refreshMouseExited
+      refresh.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_refreshMouseExited
+
+    private void searchMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchMouseExited
+      search.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_searchMouseExited
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

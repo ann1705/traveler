@@ -7,6 +7,7 @@ package app;
 
 import config.Session;
 import config.VanModel;
+import config.dbConnector;
 import dashboard.customerDashboard;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -30,10 +31,12 @@ import javax.swing.table.DefaultTableModel;
  */
 public class bookingForm extends javax.swing.JFrame {
     private ArrayList<String> temporaryStopovers = new ArrayList<>();
+    private String editingBookingID = null; // Important flag
 
   public bookingForm() {
-        this.setUndecorated(true);
+    this.setUndecorated(true);
     initComponents();
+    
     
      this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
         pickup.setEditable(true);
@@ -61,6 +64,48 @@ public class bookingForm extends javax.swing.JFrame {
         calculateGrandTotal();
         
   }
+  
+  
+
+
+
+    // 2. THIS METHOD MUST BE INSIDE THE CLASS
+public void setEditMode(String bid, String p, String d, java.util.Date s, java.util.Date e) {
+            this.editingBookingID = bid;
+
+            // 1. Set the basic text and dates
+            pickup.setText(p);
+            destination.setText(d);
+            sdate.setDate(s);
+            edate.setDate(e);
+
+            // 2. Load Stopovers from the database into the temporary list
+            loadExistingStopovers(bid); 
+
+            // 3. REFRESH EVERYTHING
+            // Since Session already has the vans (from Step 1), these will fill the UI
+            displaySelectedVans(); 
+            updateCartTable(); 
+            calculateGrandTotal();
+
+            jLabel13.setText("UPDATE BOOKING");
+}  
+    
+    private void loadExistingStopovers(String bid) {
+        try {
+            dbConnector connector = dbConnector.getInstance();
+            String query = "SELECT s.s_id, s.location, s.price FROM tbl_stopovers s " +
+                           "JOIN tbl_bookings_stopovers bs ON s.s_id = bs.s_id " +
+                           "WHERE bs.b_id = " + bid;
+            java.sql.ResultSet rs = connector.getData(query);
+            temporaryStopovers.clear();
+            while(rs.next()) {
+                temporaryStopovers.add("[" + rs.getInt("s_id") + "] " + rs.getString("location") + " - ₱" + rs.getString("price"));
+            }
+        } catch (Exception err) {
+            System.out.println("Error loading existing stopovers: " + err.getMessage());
+        }
+    }
   
   private void calculateGrandTotal() {
         double vanDailyRateTotal = 0;
@@ -242,8 +287,6 @@ private void loadStopovers() {
         jLabel9 = new javax.swing.JLabel();
         removeVan = new javax.swing.JPanel();
         jLabel17 = new javax.swing.JLabel();
-        jPanel4 = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
         sdate = new com.toedter.calendar.JDateChooser();
         edate = new com.toedter.calendar.JDateChooser();
 
@@ -260,7 +303,7 @@ private void loadStopovers() {
         });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel1.setBackground(new java.awt.Color(76, 143, 209));
+        jPanel1.setBackground(new java.awt.Color(12, 33, 74));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
@@ -268,7 +311,7 @@ private void loadStopovers() {
         jLabel2.setText("Logged as :");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 30, 300, 30));
 
-        jLabel16.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/goback.png"))); // NOI18N
+        jLabel16.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/back_white.png"))); // NOI18N
         jLabel16.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel16MouseClicked(evt);
@@ -276,7 +319,7 @@ private void loadStopovers() {
         });
         jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 60, 40));
 
-        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize.png"))); // NOI18N
+        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize_white.png"))); // NOI18N
         minimize.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 minimizeMouseClicked(evt);
@@ -284,7 +327,7 @@ private void loadStopovers() {
         });
         jPanel1.add(minimize, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 10, 30, 40));
 
-        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close.png"))); // NOI18N
+        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close_white.png"))); // NOI18N
         close.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 closeMouseClicked(evt);
@@ -294,7 +337,7 @@ private void loadStopovers() {
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 770, 70));
 
-        jPanel2.setBackground(new java.awt.Color(12, 33, 74));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jPanel2MouseClicked(evt);
@@ -303,26 +346,21 @@ private void loadStopovers() {
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         jPanel2.add(fleetdisplay, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 340, 317));
 
+        jLabel3.setBackground(new java.awt.Color(255, 255, 255));
         jLabel3.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Pick-up Location");
         jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 40, 150, 30));
 
-        pickup.setBackground(new java.awt.Color(2, 54, 87));
         pickup.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        pickup.setForeground(new java.awt.Color(255, 255, 255));
-        pickup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+        pickup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel2.add(pickup, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 40, 180, 30));
 
         jLabel4.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Final Destination");
         jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 90, -1, -1));
 
-        destination.setBackground(new java.awt.Color(2, 54, 87));
         destination.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        destination.setForeground(new java.awt.Color(255, 255, 255));
-        destination.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+        destination.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel2.add(destination, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 80, 180, 30));
 
         jLabel5.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
@@ -346,20 +384,24 @@ private void loadStopovers() {
         jPanel2.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 170, 310, 90));
 
         jLabel6.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Start Date ");
         jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 340, 120, 20));
 
         jLabel7.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("End Date");
         jPanel2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 390, 80, -1));
 
-        confirm.setBackground(new java.awt.Color(20, 20, 130));
+        confirm.setBackground(new java.awt.Color(12, 33, 74));
         confirm.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         confirm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 confirmMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                confirmMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                confirmMouseExited(evt);
             }
         });
         confirm.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -373,15 +415,20 @@ private void loadStopovers() {
         jPanel2.add(confirm, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 620, 180, 30));
 
         jLabel14.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setText("Total Cost: ");
         jPanel2.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 430, 130, 20));
 
-        jPanel3.setBackground(new java.awt.Color(20, 20, 130));
+        jPanel3.setBackground(new java.awt.Color(12, 33, 74));
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jPanel3MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jPanel3MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jPanel3MouseExited(evt);
             }
         });
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -394,9 +441,7 @@ private void loadStopovers() {
 
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 380, 140, 40));
 
-        totalPriceDisplay.setBackground(new java.awt.Color(2, 54, 87));
         totalPriceDisplay.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        totalPriceDisplay.setForeground(new java.awt.Color(255, 255, 255));
         totalPriceDisplay.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         totalPriceDisplay.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -417,11 +462,17 @@ private void loadStopovers() {
 
         jPanel2.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, 750, 110));
 
-        add.setBackground(new java.awt.Color(20, 20, 130));
+        add.setBackground(new java.awt.Color(12, 33, 74));
         add.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         add.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 addMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                addMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                addMouseExited(evt);
             }
         });
         add.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -430,15 +481,21 @@ private void loadStopovers() {
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("ADD ");
-        add.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(2, 5, 90, -1));
+        add.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 90, 20));
 
-        jPanel2.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 270, 90, 30));
+        jPanel2.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 270, 90, 40));
 
-        reset.setBackground(new java.awt.Color(20, 20, 130));
+        reset.setBackground(new java.awt.Color(12, 33, 74));
         reset.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         reset.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 resetMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                resetMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                resetMouseExited(evt);
             }
         });
         reset.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -447,15 +504,21 @@ private void loadStopovers() {
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setText("RESET");
-        reset.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
+        reset.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 100, 20));
 
-        jPanel2.add(reset, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 270, 100, 30));
+        jPanel2.add(reset, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 270, 100, 40));
 
-        removeVan.setBackground(new java.awt.Color(20, 20, 130));
+        removeVan.setBackground(new java.awt.Color(12, 33, 74));
         removeVan.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         removeVan.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 removeVanMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                removeVanMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                removeVanMouseExited(evt);
             }
         });
         removeVan.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -467,22 +530,6 @@ private void loadStopovers() {
         removeVan.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 120, 20));
 
         jPanel2.add(removeVan, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 380, 120, 40));
-
-        jPanel4.setBackground(new java.awt.Color(20, 20, 130));
-        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
-        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel10.setFont(new java.awt.Font("SansSerif", 0, 11)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setText("back to fleet");
-        jLabel10.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel10MouseClicked(evt);
-            }
-        });
-        jPanel4.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(5, 5, 80, 20));
-
-        jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 90, 30));
 
         sdate.setBackground(new java.awt.Color(2, 54, 87));
         jPanel2.add(sdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 340, 210, 30));
@@ -508,83 +555,82 @@ private void loadStopovers() {
     
     
     private void confirmMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmMouseClicked
-                                   
+                                      
     config.Session sess = config.Session.getInstance();
-    List<config.VanModel> cart = sess.getSelectedVans();
+  
+        List<VanModel> cart = sess.getSelectedVans();
 
-    // 1. Validation
-    if (cart.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Your cart is empty!");
-        return;
-    }
-    
-    if (sdate.getDate() == null || edate.getDate() == null || pickup.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please fill in the Pick-up and Date fields.");
-        return;
-    }
+        if (cart.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select at least one van.");
+            return;
+        }
+        if (pickup.getText().isEmpty() || destination.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all location fields.");
+            return;
+        }
 
-    // 2. Date Formatting
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    String startDateStr = sdf.format(sdate.getDate());
-    String endDateStr = sdf.format(edate.getDate());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            dbConnector connector = dbConnector.getInstance();
+            double finalPrice = Double.parseDouble(totalPriceDisplay.getText().replace("₱", "").replace(",", "").trim());
+            int b_id;
 
-    // 3. Prepare IDs for Database
-    StringBuilder vanIds = new StringBuilder();
-    for (int i = 0; i < cart.size(); i++) {
-        vanIds.append(cart.get(i).getVid()).append(i < cart.size() - 1 ? "," : "");
-    }
-    
-    StringBuilder stopIds = new StringBuilder();
-    for (int i = 0; i < temporaryStopovers.size(); i++) {
-        String val = temporaryStopovers.get(i);
-        // Extracts the ID inside the brackets [ID]
-        String id = val.substring(val.indexOf("[") + 1, val.indexOf("]"));
-        stopIds.append(id).append(i < temporaryStopovers.size() - 1 ? "," : "");
-    }
+            if (editingBookingID != null) {
+                // --- UPDATE LOGIC ---
+                b_id = Integer.parseInt(editingBookingID);
 
-    try {
-        config.dbConnector connector = config.dbConnector.getInstance();
-        // Clean currency formatting for DB
-        double finalPrice = Double.parseDouble(totalPriceDisplay.getText().replace("₱", "").replace(",", "").trim());
+                // 1. Reset previous van statuses to Available
+                String releaseQuery = "UPDATE tbl_vans SET status = 'Available' WHERE v_id IN " +
+                                     "(SELECT v_id FROM tbl_booking_items WHERE b_id = " + b_id + ")";
+                connector.updateData(releaseQuery);
 
-        // 4. Insert Booking Record
-        String query = "INSERT INTO tbl_bookings (a_id, van_id, pick_up, destination, stopover_id, start_date, end_date, total_price, status) "
-                     + "VALUES (" + sess.getId() + ", '" + vanIds + "', '" + pickup.getText() + "', '" 
-                     + destination.getText() + "', '" + stopIds + "', '" + startDateStr + "', '" 
-                     + endDateStr + "', " + finalPrice + ", 'Booked')";
-        
-        int b_id = connector.insertData(query);
-        
-        if (b_id > 0) {
-            // 5. CRITICAL: Update the status of each selected van in tbl_vans
-            for (VanModel v : cart) {
-                String updateVanQuery = "UPDATE tbl_vans SET status = 'Booked' WHERE v_id = " + v.getVid();
-                connector.updateData(updateVanQuery);
+                // 2. Clear old mappings
+                connector.updateData("DELETE FROM tbl_booking_items WHERE b_id = " + b_id);
+                connector.updateData("DELETE FROM tbl_bookings_stopovers WHERE b_id = " + b_id);
+
+                // 3. Update main record
+                String updateMain = "UPDATE tbl_bookings SET pick_up = '" + pickup.getText() + "', " +
+                                    "destination = '" + destination.getText() + "', " +
+                                    "start_date = '" + sdf.format(sdate.getDate()) + "', " +
+                                    "end_date = '" + sdf.format(edate.getDate()) + "', " +
+                                    "total_price = " + finalPrice + " WHERE b_id = " + b_id;
+                connector.updateData(updateMain);
+
+            } else {
+                // --- INSERT LOGIC ---
+                String insertMain = "INSERT INTO tbl_bookings (a_id, pick_up, destination, start_date, end_date, total_price, status) "
+                                  + "VALUES (" + sess.getId() + ", '" + pickup.getText() + "', '" + destination.getText() + "', '" 
+                                  + sdf.format(sdate.getDate()) + "', '" + sdf.format(edate.getDate()) + "', " + finalPrice + ", 'Pending')";
+                b_id = connector.insertData(insertMain);
             }
 
-            JOptionPane.showMessageDialog(this, "Booking Successful! ID: " + b_id);
-            
-            // 6. Open Receipt and Refresh
-            app.BookingDetails receipt = new app.BookingDetails(
-                String.valueOf(b_id),
-                sess.getFirstname() + " " + sess.getLastname(),
-                pickup.getText(),
-                destination.getText(),
-                startDateStr,
-                endDateStr,
-                totalPriceDisplay.getText(),
-                "Booked",
-                new java.util.ArrayList<>(cart),
-                new java.util.ArrayList<>(temporaryStopovers)
-            );
-            
-            receipt.setVisible(true);
-            sess.clearVans(); // Clear cart
-            this.dispose();   // Close booking form
+            if (b_id > 0) {
+                // 4. Re-insert items (Vans)
+                for (VanModel v : cart) {
+                    connector.insertData("INSERT INTO tbl_booking_items (b_id, v_id) VALUES (" + b_id + ", " + v.getVid() + ")");
+                    connector.updateData("UPDATE tbl_vans SET status = 'Booked' WHERE v_id = " + v.getVid());
+                }
+
+                // 5. Re-insert Stopovers
+                for (String val : temporaryStopovers) {
+                    String s_id = val.substring(val.indexOf("[") + 1, val.indexOf("]"));
+                    connector.insertData("INSERT INTO tbl_bookings_stopovers (b_id, s_id) VALUES (" + b_id + ", " + s_id + ")");
+                }
+
+                JOptionPane.showMessageDialog(this, (editingBookingID != null ? "Booking Updated!" : "Booking Confirmed!"));
+                
+                // Redirect back to details
+                new app.BookingDetails(String.valueOf(b_id), sess.getFirstname() + " " + sess.getLastname(), 
+                                       pickup.getText(), destination.getText(), sdf.format(sdate.getDate()), 
+                                       sdf.format(edate.getDate()), totalPriceDisplay.getText(), "Pending").setVisible(true);
+
+                sess.clearVans();
+                this.dispose();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
-    }
+    
 
     }//GEN-LAST:event_confirmMouseClicked
 
@@ -666,11 +712,6 @@ private void loadStopovers() {
 
     }//GEN-LAST:event_removeVanMouseClicked
 
-    private void jLabel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseClicked
-      new fleet.fleet().setVisible(true);
-      this.dispose();
-    }//GEN-LAST:event_jLabel10MouseClicked
-
     private void stopoverListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_stopoverListValueChanged
         // TODO add your handling code here:
     }//GEN-LAST:event_stopoverListValueChanged
@@ -703,6 +744,46 @@ private void loadStopovers() {
       xMouse = evt.getX();
       yMouse = evt.getY();
     }//GEN-LAST:event_formMousePressed
+
+    private void jPanel3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel3MouseEntered
+         jPanel3.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_jPanel3MouseEntered
+
+    private void jPanel3MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel3MouseExited
+        jPanel3.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_jPanel3MouseExited
+
+    private void removeVanMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_removeVanMouseEntered
+         removeVan.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_removeVanMouseEntered
+
+    private void removeVanMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_removeVanMouseExited
+        removeVan.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_removeVanMouseExited
+
+    private void resetMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resetMouseEntered
+        reset.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_resetMouseEntered
+
+    private void resetMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resetMouseExited
+       reset.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_resetMouseExited
+
+    private void addMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addMouseEntered
+         add.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_addMouseEntered
+
+    private void addMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addMouseExited
+        add.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_addMouseExited
+
+    private void confirmMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmMouseEntered
+         confirm.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_confirmMouseEntered
+
+    private void confirmMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_confirmMouseExited
+       confirm.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_confirmMouseExited
 
     /**
      * @param args the command line arguments
@@ -747,7 +828,6 @@ private void loadStopovers() {
     private javax.swing.JTextField destination;
     private com.toedter.calendar.JDateChooser edate;
     private javax.swing.JScrollPane fleetdisplay;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
@@ -764,7 +844,6 @@ private void loadStopovers() {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel minimize;

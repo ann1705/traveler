@@ -19,12 +19,13 @@ import javax.swing.SwingUtilities;
  * @author RageKing
  */
 public class addForm extends javax.swing.JFrame {
-
-    /**
-     * Creates new form addForm
-     */
+    private boolean isProcessing = false; // Add this at the top of your class
+                             
+    
     public addForm() {
+        this.setUndecorated(true);
         initComponents();
+        this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
         
     }
 
@@ -47,45 +48,28 @@ public class addForm extends javax.swing.JFrame {
         }
     }
    
-  public boolean duplicateCheck() {
-   // This calls the static method we created
+public boolean duplicateCheck() {
     config.dbConnector connector = config.dbConnector.getInstance();
-    ResultSet rs = null;
-    try {
-        // Use a single query to check both
-        String query = "SELECT * FROM tbl_account WHERE username = '" + uname.getText() 
-                     + "' OR email = '" + em.getText() + "'";
-        
-        rs = connector.getData(query);
-        
-        if (rs.next()) {
+    String query = "SELECT email, username FROM tbl_account WHERE username = '" 
+                   + uname.getText() + "' OR email = '" + em.getText() + "'";
+    
+    try (java.sql.ResultSet rs = connector.getData(query)) {
+        if (rs != null && rs.next()) {
             String existingEmail = rs.getString("email");
-            String existingUname = rs.getString("username");
-            
-            if (existingEmail.equals(em.getText())) {
+            if (existingEmail.equalsIgnoreCase(em.getText())) {
                 JOptionPane.showMessageDialog(null, "Email is already taken!");
-            } else if (existingUname.equals(uname.getText())) {
+            } else {
                 JOptionPane.showMessageDialog(null, "Username is already taken!");
             }
             return true;
         }
-        return false;
-        
     } catch (SQLException ex) {
-        System.out.println("Validation Error: " + ex.getMessage());
-        return false;
-    } finally {
-        // CRITICAL: This ensures the database is not 'Busy' for the next operation
-        try {
-            if (rs != null) {
-                if (rs.getStatement() != null) rs.getStatement().close();
-                rs.close();
-            }
-        } catch (SQLException e) {
-            System.out.println("Closing Error: " + e.getMessage());
-        }
+        System.out.println("Duplicate Check Error: " + ex.getMessage());
     }
+    return false;
 }
+  
+  
    public void close(){
     this.dispose();
     adminDashboard ad = new adminDashboard();
@@ -100,6 +84,7 @@ public class addForm extends javax.swing.JFrame {
   
     @SuppressWarnings("unchecked")
      private boolean isViewed = false;
+    private int xMouse, yMouse;
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -129,17 +114,26 @@ public class addForm extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(76, 143, 209));
+        jPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jPanel1MouseDragged(evt);
+            }
+        });
+        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jPanel1MousePressed(evt);
+            }
+        });
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(76, 143, 209));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel3.setBackground(new java.awt.Color(204, 204, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 4));
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        save.setBackground(new java.awt.Color(204, 102, 255));
-        save.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        save.setBackground(new java.awt.Color(12, 33, 74));
+        save.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 1, true));
         save.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 saveMouseClicked(evt);
@@ -147,7 +141,8 @@ public class addForm extends javax.swing.JFrame {
         });
         save.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        savel.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        savel.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        savel.setForeground(new java.awt.Color(255, 255, 255));
         savel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         savel.setText("SAVE");
         savel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -164,11 +159,10 @@ public class addForm extends javax.swing.JFrame {
         label.setText("Account Type :");
         jPanel3.add(label, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 140, 150, 20));
 
-        jPanel4.setBackground(new java.awt.Color(76, 143, 209));
-        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 4));
+        jPanel4.setBackground(new java.awt.Color(12, 33, 74));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/goback.png"))); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/back_white.png"))); // NOI18N
         jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel2MouseClicked(evt);
@@ -188,7 +182,6 @@ public class addForm extends javax.swing.JFrame {
         jLabel5.setText("First Name :");
         jPanel3.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 190, 130, -1));
 
-        finame.setBackground(new java.awt.Color(204, 204, 255));
         finame.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         finame.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel3.add(finame, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 190, 240, 30));
@@ -197,7 +190,6 @@ public class addForm extends javax.swing.JFrame {
         jLabel6.setText("Last Name:");
         jPanel3.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 250, 110, -1));
 
-        laname.setBackground(new java.awt.Color(204, 204, 255));
         laname.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         laname.setToolTipText("");
         laname.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -208,16 +200,15 @@ public class addForm extends javax.swing.JFrame {
         jPanel3.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, 90, -1));
 
         userid.setEditable(false);
-        userid.setBackground(new java.awt.Color(204, 204, 255));
+        userid.setBackground(new java.awt.Color(255, 255, 255));
         userid.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         userid.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
         jPanel3.add(userid, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 80, 240, 30));
 
         jLabel11.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         jLabel11.setText("UserName:");
-        jPanel3.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 350, -1, -1));
+        jPanel3.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 350, -1, -1));
 
-        uname.setBackground(new java.awt.Color(204, 204, 255));
         uname.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         uname.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel3.add(uname, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 340, 240, 30));
@@ -225,13 +216,12 @@ public class addForm extends javax.swing.JFrame {
         jLabel12.setBackground(new java.awt.Color(204, 204, 255));
         jLabel12.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         jLabel12.setText("Password :");
-        jPanel3.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 400, 110, -1));
+        jPanel3.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 400, 110, -1));
 
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         jLabel1.setText("Email:");
         jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 300, -1, -1));
 
-        em.setBackground(new java.awt.Color(204, 204, 255));
         em.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         em.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel3.add(em, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 290, 240, 30));
@@ -246,7 +236,6 @@ public class addForm extends javax.swing.JFrame {
         });
         jPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 390, 30, 30));
 
-        pass.setBackground(new java.awt.Color(204, 204, 255));
         pass.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         pass.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel3.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 390, 240, 30));
@@ -271,44 +260,52 @@ public class addForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void savelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_savelMouseClicked
-        // TODO add your handling code here:
+        saveMouseClicked(null);
     }//GEN-LAST:event_savelMouseClicked
 
     private void saveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseClicked
+   
+    if (isProcessing) return; // Guard against double-clicks
+    
+    if (validateRegister() == 0) {
+        JOptionPane.showMessageDialog(null, "All fields are required!");
+        return;
+    }
 
-        if (validateRegister() == 0) {
-            JOptionPane.showMessageDialog(null, "All fields are required!");
-            return;
+    // 1. Check for duplicates
+    if (duplicateCheck()) {
+        return; 
+    }
+
+    try {
+        isProcessing = true; // Lock the button
+        String hashedPass = config.passHasher.hashPassword(new String(pass.getPassword()));
+        String selectedType = acctype.getSelectedItem().toString();
+        config.dbConnector connector = config.dbConnector.getInstance();
+
+        String sql = "INSERT INTO tbl_account (firstname, lastname, email, username, password, type, status) "
+                   + "VALUES ('" + finame.getText() + "', '"
+                   + laname.getText() + "', '"
+                   + em.getText() + "', '"
+                   + uname.getText() + "', '"
+                   + hashedPass + "', '"
+                   + selectedType + "', 'Active')";
+
+        // 2. Perform insertion
+        if (connector.insertData(sql) > 0) {
+            JOptionPane.showMessageDialog(null, "Account Created Successfully!");
+            close(); 
+        } else {
+            JOptionPane.showMessageDialog(null, "Connection Error: Data not saved.");
         }
+        
+    } catch (Exception ex) {
+        System.out.println("System Error: " + ex.getMessage());
+    } finally {
+        isProcessing = false; // Unlock the button
+    }
 
-        // duplicateCheck now handles its own closing in 'finally' block
-        if (duplicateCheck()) {
-            return;
-        }
 
-        try {
-            String hashedPass = passHasher.hashPassword(new String(pass.getPassword()));
-            String selectedType = acctype.getSelectedItem().toString();
-            // This calls the static method we created
-            config.dbConnector connector = config.dbConnector.getInstance();
-
-            String sql = "INSERT INTO tbl_account (firstname, lastname, email, username, password, type, status) "
-            + "VALUES ('" + finame.getText() + "', '"
-            + laname.getText() + "', '"
-            + em.getText() + "', '"
-            + uname.getText() + "', '"
-            + hashedPass + "', '"
-            + selectedType + "', 'Active')";
-
-            if (connector.insertData(sql) == 1) {
-                JOptionPane.showMessageDialog(null, "Account Created Successfully!");
-                clearFields();
-            } else {
-                JOptionPane.showMessageDialog(null, "Connection Error!");
-            }
-        } catch (Exception ex) {
-            System.out.println("Insertion Error: " + ex.getMessage());
-        }
     }//GEN-LAST:event_saveMouseClicked
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
@@ -325,6 +322,17 @@ public class addForm extends javax.swing.JFrame {
         isViewed = true;
     }
     }//GEN-LAST:event_jLabel3MouseClicked
+
+    private void jPanel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MousePressed
+        xMouse = evt.getX();
+       yMouse = evt.getY();
+    }//GEN-LAST:event_jPanel1MousePressed
+
+    private void jPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseDragged
+    int x = evt.getXOnScreen();
+    int y = evt.getYOnScreen();
+    this.setLocation(x - xMouse, y - yMouse);
+    }//GEN-LAST:event_jPanel1MouseDragged
 
     /**
      * @param args the command line arguments

@@ -69,17 +69,14 @@ public class dbConnector {
     }
     
     public int insertData(String sql) {
-        try (PreparedStatement pst = connect.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            int affectedRows = pst.executeUpdate();
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
-                    if (generatedKeys.next()) return generatedKeys.getInt(1);
-                }
-            }
-            return affectedRows; 
-        } catch (SQLException ex) {
-            System.out.println("Insert Error: " + ex.getMessage());
-            return 0;
-        }
+    try {
+        java.sql.PreparedStatement pst = connect.prepareStatement(sql);
+        int rowsAffected = pst.executeUpdate();
+        pst.close();
+        return rowsAffected; // Returns the number of rows (e.g., 1)
+    } catch (java.sql.SQLException ex) {
+        System.out.println("Insert Error: " + ex.getMessage());
+        return 0; // Returns 0 if it fails
     }
+}
 }

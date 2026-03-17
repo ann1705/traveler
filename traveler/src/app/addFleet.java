@@ -5,18 +5,15 @@
  */
 package app;
 
-import config.Session;
 import config.dbConnector;
 import dashboard.adminDashboard;
-import internalPages.usersTable;
+import internalPages.fleetTable;
 import java.awt.Image;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import static javafx.scene.input.KeyCode.J;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -28,23 +25,44 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author RageKing
  */
 public class addFleet extends javax.swing.JFrame {
+    private int xMouse, yMouse;
 
    String imagePath = ""; 
    public String destination = ""; 
    File selectedFile;
+   public boolean isUpdate = false;
+   
+   
+   
    
     public addFleet() {
+        
+        this.setUndecorated(true);
         initComponents();
+        this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
+        
     }
  
-    public void close(){
-    this.dispose();
-    adminDashboard ad = new adminDashboard();
-    ad.setVisible(true);
-    usersTable ut = new usersTable();
-    ad.getMainPane().add(ut).setVisible(true);
-}
-       
+    public void fillForm(String id, String cat, String mod, String plate, String cap, String rate, String stat, String img) {
+    vanid.setText(id);
+    category.setSelectedItem(cat);
+    model.setText(mod);
+    plateno.setText(plate);
+    capacity.setText(cap);
+    dailyrate.setText(rate);
+    status.setSelectedItem(stat);
+    this.destination = img; 
+    
+    if (img != null && !img.isEmpty()) {
+        imagelabel.setIcon(ResizeImage(img, null, imagelabel));
+        // Ensure jLabel4 (Browse) is still visible and has text
+        jLabel4.setText("BROWSE"); 
+        jLabel4.setVisible(true);
+    }
+    
+    isUpdate = true;
+    savel.setText("UPDATE");
+}  
        
     public ImageIcon ResizeImage(String ImagePath, byte[] pic, JLabel label) {
         ImageIcon MyImage = (ImagePath != null) ? new ImageIcon(ImagePath) : new ImageIcon(pic);
@@ -52,7 +70,15 @@ public class addFleet extends javax.swing.JFrame {
         Image newImg = img.getScaledInstance(label.getWidth(), label.getHeight(), Image.SCALE_SMOOTH);
         return new ImageIcon(newImg);
     }
-       
+    
+    
+       public void close() {
+        this.dispose();
+        adminDashboard ad = new adminDashboard();
+        ad.setVisible(true);
+        fleetTable ft = new fleetTable(); // Open fleetTable instead of usersTable
+        ad.getMainPane().add(ft).setVisible(true);
+    }
        
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -88,12 +114,22 @@ public class addFleet extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel3.setBackground(new java.awt.Color(204, 204, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 4));
+        jPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jPanel1MouseDragged(evt);
+            }
+        });
+        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jPanel1MousePressed(evt);
+            }
+        });
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        save.setBackground(new java.awt.Color(204, 102, 255));
-        save.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        save.setBackground(new java.awt.Color(12, 33, 74));
+        save.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 1, true));
         save.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 saveMouseClicked(evt);
@@ -101,10 +137,14 @@ public class addFleet extends javax.swing.JFrame {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 saveMouseEntered(evt);
             }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                saveMouseExited(evt);
+            }
         });
         save.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        savel.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        savel.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        savel.setForeground(new java.awt.Color(255, 255, 255));
         savel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         savel.setText("SAVE");
         savel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -121,11 +161,10 @@ public class addFleet extends javax.swing.JFrame {
         label.setText("Category :");
         jPanel3.add(label, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 140, 150, 30));
 
-        jPanel4.setBackground(new java.awt.Color(76, 143, 209));
-        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 4));
+        jPanel4.setBackground(new java.awt.Color(12, 33, 74));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/goback.png"))); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/back_white.png"))); // NOI18N
         jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel2MouseClicked(evt);
@@ -145,7 +184,6 @@ public class addFleet extends javax.swing.JFrame {
         jLabel5.setText("Capacity :");
         jPanel3.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 294, 130, 30));
 
-        model.setBackground(new java.awt.Color(204, 204, 255));
         model.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         model.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel3.add(model, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 190, 240, 30));
@@ -154,7 +192,6 @@ public class addFleet extends javax.swing.JFrame {
         jLabel6.setText("Daily Rate :");
         jPanel3.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 344, 110, 30));
 
-        plateno.setBackground(new java.awt.Color(204, 204, 255));
         plateno.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         plateno.setToolTipText("");
         plateno.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -165,16 +202,15 @@ public class addFleet extends javax.swing.JFrame {
         jPanel3.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, 90, -1));
 
         vanid.setEditable(false);
-        vanid.setBackground(new java.awt.Color(204, 204, 255));
+        vanid.setBackground(new java.awt.Color(255, 255, 255));
         vanid.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        vanid.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        vanid.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 1, true));
         jPanel3.add(vanid, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 80, 240, 30));
 
         jLabel11.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         jLabel11.setText("Plate No. :");
         jPanel3.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 240, -1, 30));
 
-        dailyrate.setBackground(new java.awt.Color(204, 204, 255));
         dailyrate.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         dailyrate.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel3.add(dailyrate, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 340, 240, 30));
@@ -188,15 +224,19 @@ public class addFleet extends javax.swing.JFrame {
         jLabel1.setText("Model :");
         jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 190, -1, 30));
 
-        capacity.setBackground(new java.awt.Color(204, 204, 255));
         capacity.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         capacity.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel3.add(capacity, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 290, 240, 30));
 
         status.setEditable(true);
         status.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Available", "Booked", "Maintenace" }));
+        status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Available", "Booked", "Under Maintenace" }));
         status.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        status.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                statusActionPerformed(evt);
+            }
+        });
         jPanel3.add(status, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 390, 240, 30));
 
         photo.setBackground(new java.awt.Color(255, 255, 255));
@@ -211,32 +251,46 @@ public class addFleet extends javax.swing.JFrame {
 
         jPanel3.add(photo, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 90, 320, 280));
 
-        cancel.setBackground(new java.awt.Color(204, 102, 255));
-        cancel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        cancel.setBackground(new java.awt.Color(12, 33, 74));
+        cancel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         cancel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 cancelMouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cancelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cancelMouseExited(evt);
+            }
         });
         cancel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel3.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("CANCEL");
         cancel.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 120, 20));
 
         jPanel3.add(cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 480, 120, 40));
 
-        jLabel4.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("BROWSE");
-        jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 380, 140, 40));
+        jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 390, 140, 20));
 
-        browse.setBackground(new java.awt.Color(204, 102, 255));
-        browse.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        browse.setBackground(new java.awt.Color(12, 33, 74));
+        browse.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         browse.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 browseMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                browseMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                browseMouseExited(evt);
             }
         });
         browse.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -272,55 +326,47 @@ public class addFleet extends javax.swing.JFrame {
     }//GEN-LAST:event_savelMouseClicked
 
     private void saveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseClicked
-                                 
-                                  
-        // 1. Validation check
+                                       
         if(model.getText().isEmpty() || plateno.getText().isEmpty() || dailyrate.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Please fill in all required fields!");
+            JOptionPane.showMessageDialog(null, "Required fields are missing!");
             return;
         }
 
         try {
-            // 2. Handle Image Storage (Physical Copy)
-            String finalPath = "";
+            String finalPath = destination;
             if(selectedFile != null) {
                 File folder = new File("src/fleet_images");
                 if (!folder.exists()) folder.mkdirs();
-                
-                // Set destination path
                 finalPath = "src/fleet_images/" + selectedFile.getName();
-                File dest = new File(finalPath);
-                
-                // Copy file to project folder
-                Files.copy(selectedFile.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(selectedFile.toPath(), new File(finalPath).toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
 
-            // 3. Database Connection and Insert
             Connection con = dbConnector.getInstance().getConnection();
-            String sql = "INSERT INTO tbl_vans (category, model, plate_number, capacity, daily_rate, status, image) "
-                       + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-            
+            String sql;
+            if (isUpdate) {
+                sql = "UPDATE tbl_vans SET category=?, model=?, plate_number=?, capacity=?, daily_rate=?, status=?, image=? WHERE v_id=?";
+            } else {
+                sql = "INSERT INTO tbl_vans (category, model, plate_number, capacity, daily_rate, status, image) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            }
+
             PreparedStatement pst = con.prepareStatement(sql);
-            
             pst.setString(1, category.getSelectedItem().toString());
             pst.setString(2, model.getText());
             pst.setString(3, plateno.getText());
             pst.setString(4, capacity.getText());
             pst.setString(5, dailyrate.getText());
             pst.setString(6, status.getSelectedItem().toString());
-            pst.setString(7, finalPath); // Save the project-relative path
+            pst.setString(7, finalPath);
+
+            if (isUpdate) pst.setString(8, vanid.getText());
 
             pst.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Fleet saved successfully!");
-            
-            close(); // Return to dashboard
-            
+            JOptionPane.showMessageDialog(null, "Success!");
+            close();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
         }
     
-
-
       
            
     }//GEN-LAST:event_saveMouseClicked
@@ -331,7 +377,7 @@ public class addFleet extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel2MouseClicked
 
     private void saveMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseEntered
-       
+       save.setBackground(java.awt.Color.decode("#256B97"));
     }//GEN-LAST:event_saveMouseEntered
 
     private void cancelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelMouseClicked
@@ -371,6 +417,41 @@ public class addFleet extends javax.swing.JFrame {
         }
     
     }//GEN-LAST:event_browseMouseClicked
+
+    private void statusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statusActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_statusActionPerformed
+
+    private void saveMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseExited
+        save.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_saveMouseExited
+
+    private void browseMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_browseMouseEntered
+       browse.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_browseMouseEntered
+
+    private void browseMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_browseMouseExited
+        browse.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_browseMouseExited
+
+    private void cancelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelMouseEntered
+       cancel.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_cancelMouseEntered
+
+    private void cancelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelMouseExited
+        cancel.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_cancelMouseExited
+
+    private void jPanel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MousePressed
+       xMouse = evt.getX();
+      yMouse = evt.getY();
+    }//GEN-LAST:event_jPanel1MousePressed
+
+    private void jPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseDragged
+       int x = evt.getXOnScreen();
+    int y = evt.getYOnScreen();
+    this.setLocation(x - xMouse, y - yMouse);
+    }//GEN-LAST:event_jPanel1MouseDragged
 
     /**
      * @param args the command line arguments

@@ -6,8 +6,12 @@
 package app;
 
 import dashboard.customerDashboard;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -16,6 +20,8 @@ import javax.swing.table.DefaultTableModel;
  */
 public class bookingList extends javax.swing.JFrame {
     private String mode;
+    private int xMouse, yMouse;
+    
   
     
      
@@ -23,6 +29,7 @@ public class bookingList extends javax.swing.JFrame {
         this.setUndecorated(true);
         this.mode = mode;
         initComponents();
+        designTable();
         
         this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
         
@@ -34,11 +41,45 @@ public class bookingList extends javax.swing.JFrame {
         this("Bookings");
     }
     
-    @SuppressWarnings("unchecked")
-     private int xMouse, yMouse;
     
-  public void displayTable() {
- try {
+    private void designTable() {
+        // 1. Style the Table Body
+        bookingTable.setBackground(Color.WHITE);
+        bookingTable.setGridColor(new Color(230, 230, 230));
+        bookingTable.setRowHeight(35);
+        bookingTable.setSelectionBackground(new Color(76, 143, 209));
+        bookingTable.setSelectionForeground(Color.WHITE);
+        bookingTable.setShowVerticalLines(false);
+        jScrollPane1.getViewport().setBackground(Color.WHITE);
+
+        // 2. Style the Table Header
+        javax.swing.table.JTableHeader header = bookingTable.getTableHeader();
+        header.setFont(new Font("SansSerif", Font.BOLD, 16));
+        header.setReorderingAllowed(false);
+
+        // Force the [12, 33, 74] color on the header
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setBackground(new Color(12, 33, 74));
+                setForeground(Color.WHITE);
+                setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 1, new Color(255, 255, 255, 50)));
+                setHorizontalAlignment(javax.swing.JLabel.CENTER);
+                return this;
+            }
+        });
+
+        // 3. Center align cell content
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
+        bookingTable.setDefaultRenderer(Object.class, centerRenderer);
+    }
+    @SuppressWarnings("unchecked")
+    
+    
+public void displayTable() {
+        try {
             config.dbConnector connector = config.dbConnector.getInstance();
             int sessionID = config.Session.getInstance().getId();
             
@@ -46,12 +87,14 @@ public class bookingList extends javax.swing.JFrame {
             model.setColumnIdentifiers(new String[]{"Booking ID", "Route", "Status", "Total Price"});
             model.setRowCount(0); 
 
-            // LOGIC: Filter status based on the mode
             String statusFilter;
             if (mode.equalsIgnoreCase("History")) {
+                // HISTORY: Only show finished or terminated bookings
                 statusFilter = "IN ('Completed', 'Cancelled')";
             } else {
-                statusFilter = "= 'Booked'";
+                // ACTIVE: Show everything else. 
+                // This includes Pending, Booked, Assigned, and any intermediate states.
+                statusFilter = "NOT IN ('Completed', 'Cancelled')";
             }
 
             String query = "SELECT b_id, pick_up, destination, status, total_price FROM tbl_bookings " +
@@ -68,54 +111,40 @@ public class bookingList extends javax.swing.JFrame {
                 });
             }
         } catch (java.sql.SQLException ex) {
-            System.out.println("Error loading table: " + ex.getMessage());
+            System.out.println("Database Error: " + ex.getMessage());
         }
     }
-  
-  private void openDetails(int bookingId) {
-        config.Session sess = config.Session.getInstance();
-        config.dbConnector connector = config.dbConnector.getInstance();
+private void openDetails(int bookingId) {
+    config.Session sess = config.Session.getInstance();
+    config.dbConnector connector = config.dbConnector.getInstance();
+    
+    try {
+        // 1. Fetch Main Booking Data
+        String bookingQuery = "SELECT * FROM tbl_bookings WHERE b_id = " + bookingId;
+        java.sql.ResultSet rs = connector.getData(bookingQuery);
         
-        try {
-            String bookingQuery = "SELECT * FROM tbl_bookings WHERE b_id = " + bookingId;
-            java.sql.ResultSet rs = connector.getData(bookingQuery);
+        if (rs.next()) {
+            String bid = String.valueOf(rs.getInt("b_id"));
+            String fullName = sess.getFirstname() + " " + sess.getLastname();
+            String pUp = rs.getString("pick_up");
+            String dest = rs.getString("destination");
+            String sDate = rs.getString("start_date");
+            String eDate = rs.getString("end_date");
+            String tPrice = "₱" + String.format("%.2f", rs.getDouble("total_price"));
+            String stat = rs.getString("status");
+
+                // Initialize the Details view with the fetched data
+            app.BookingDetails details = new app.BookingDetails(
+                    bid, fullName, pUp, dest, sDate, eDate, tPrice, stat
+            );
             
-            if (rs.next()) {
-                String bid = String.valueOf(rs.getInt("b_id"));
-                String fullName = sess.getFirstname() + " " + sess.getLastname();
-                String pUp = rs.getString("pick_up");
-                String dest = rs.getString("destination");
-                String sDate = rs.getString("start_date");
-                String eDate = rs.getString("end_date");
-                String tPrice = "₱" + String.format("%.2f", rs.getDouble("total_price"));
-                String stat = rs.getString("status"); // FIXED: Changed from "Booked" to column name
-                String vanIdsString = rs.getString("van_id");
-
-                // Fetch associated vans
-                List<config.VanModel> vans = new ArrayList<>();
-                if (vanIdsString != null && !vanIdsString.isEmpty()) {
-                    String vanQuery = "SELECT * FROM tbl_vans WHERE v_id IN (" + vanIdsString + ")";
-                    java.sql.ResultSet rsVans = connector.getData(vanQuery);
-                    while (rsVans.next()) {
-                        config.VanModel vm = new config.VanModel();
-                        vm.setVid(rsVans.getInt("v_id"));
-                        vm.setModel(rsVans.getString("model"));
-                        vm.setVimage(rsVans.getString("image")); 
-                        vans.add(vm);
-                    }
-                }
-
-                List<String> stops = new ArrayList<>();
-                // If you have stopover logic, fetch them here using rs.getString("stopover_id")
-
-                app.BookingDetails details = new app.BookingDetails(bid, fullName, pUp, dest, sDate, eDate, tPrice, stat, vans, stops);
-                details.setVisible(true);
-                this.dispose();
-            }
-        } catch (java.sql.SQLException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error fetching details: " + ex.getMessage());
+            details.setVisible(true);
+            this.dispose();
         }
+    } catch (java.sql.SQLException ex) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Error fetching details: " + ex.getMessage());
     }
+}
   
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -131,7 +160,7 @@ public class bookingList extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(12, 33, 74));
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 jPanel1MouseDragged(evt);
@@ -144,10 +173,10 @@ public class bookingList extends javax.swing.JFrame {
         });
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel2.setBackground(new java.awt.Color(76, 143, 209));
+        jPanel2.setBackground(new java.awt.Color(12, 33, 74));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/goback.png"))); // NOI18N
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/back_white.png"))); // NOI18N
         jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel1MouseClicked(evt);
@@ -156,10 +185,11 @@ public class bookingList extends javax.swing.JFrame {
         jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 60, 40));
 
         jLabel2.setFont(new java.awt.Font("SansSerif", 1, 36)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("BOOKINGS");
         jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 20, 550, 30));
 
-        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize.png"))); // NOI18N
+        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize_white.png"))); // NOI18N
         minimize.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 minimizeMouseClicked(evt);
@@ -167,7 +197,7 @@ public class bookingList extends javax.swing.JFrame {
         });
         jPanel2.add(minimize, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 10, 40, 40));
 
-        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close.png"))); // NOI18N
+        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close_white.png"))); // NOI18N
         close.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 closeMouseClicked(evt);
@@ -177,6 +207,7 @@ public class bookingList extends javax.swing.JFrame {
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 910, 60));
 
+        bookingTable.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         bookingTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -192,7 +223,7 @@ public class bookingList extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(bookingTable);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 870, 400));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 870, 420));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

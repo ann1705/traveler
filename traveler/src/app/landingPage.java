@@ -55,15 +55,22 @@ public class landingPage extends javax.swing.JFrame {
         smalltext.setText("Comfortable and Affordable");
         jPanel2.add(smalltext, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 680, -1));
 
-        jPanel3.setBackground(new java.awt.Color(132, 202, 238));
+        jPanel3.setBackground(new java.awt.Color(2, 54, 87));
         jPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jPanel3MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jPanel3MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jPanel3MouseExited(evt);
             }
         });
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         text.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        text.setForeground(new java.awt.Color(255, 255, 255));
         text.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         text.setText("Explore More");
         jPanel3.add(text, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 130, 40));
@@ -99,6 +106,14 @@ public class landingPage extends javax.swing.JFrame {
       f.setVisible(true);
       dispose();
     }//GEN-LAST:event_jPanel3MouseClicked
+
+    private void jPanel3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel3MouseEntered
+        jPanel3.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_jPanel3MouseEntered
+
+    private void jPanel3MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel3MouseExited
+         jPanel3.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_jPanel3MouseExited
 
     /**
      * @param args the command line arguments

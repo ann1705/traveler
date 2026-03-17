@@ -232,7 +232,7 @@ private void updateImagePreview(String path) {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel3.setBackground(new java.awt.Color(12, 33, 74));
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 jPanel3MouseDragged(evt);
@@ -270,49 +270,44 @@ private void updateImagePreview(String path) {
         jPanel3.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 100, 240, 210));
 
         jLabel2.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Account ID :");
         jPanel3.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 390, 140, 30));
 
         aid.setEditable(false);
-        aid.setBackground(new java.awt.Color(2, 54, 87));
+        aid.setBackground(new java.awt.Color(216, 236, 236));
         aid.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        aid.setForeground(new java.awt.Color(255, 255, 255));
         aid.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
         jPanel3.add(aid, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 390, 200, 30));
 
         jLabel3.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("First Name :");
         jPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 480, 150, 30));
 
-        fname.setBackground(new java.awt.Color(2, 54, 87));
+        fname.setBackground(new java.awt.Color(216, 236, 236));
         fname.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        fname.setForeground(new java.awt.Color(255, 255, 255));
         fname.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
         jPanel3.add(fname, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 480, 200, 30));
 
         jLabel4.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Last Name :");
         jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 530, 150, 30));
 
-        lname.setEditable(false);
-        lname.setBackground(new java.awt.Color(2, 54, 87));
+        lname.setBackground(new java.awt.Color(216, 236, 236));
         lname.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        lname.setForeground(new java.awt.Color(255, 255, 255));
         lname.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
+        lname.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lnameActionPerformed(evt);
+            }
+        });
         jPanel3.add(lname, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 530, 200, 30));
 
         jLabel5.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Username :");
         jPanel3.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 580, 150, 30));
 
-        uname.setEditable(false);
-        uname.setBackground(new java.awt.Color(2, 54, 87));
+        uname.setBackground(new java.awt.Color(216, 236, 236));
         uname.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        uname.setForeground(new java.awt.Color(255, 255, 255));
         uname.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
         uname.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -322,32 +317,36 @@ private void updateImagePreview(String path) {
         jPanel3.add(uname, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 580, 200, 30));
 
         jLabel6.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Email :");
         jPanel3.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 630, 150, 30));
 
-        email.setBackground(new java.awt.Color(2, 54, 87));
+        email.setEditable(false);
+        email.setBackground(new java.awt.Color(216, 236, 236));
         email.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        email.setForeground(new java.awt.Color(255, 255, 255));
         email.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
         jPanel3.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 630, 200, 30));
 
         jLabel14.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setText("Civil Status :");
         jPanel3.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 680, 150, 30));
 
         cstatus.setEditable(true);
         cstatus.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         cstatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Single", "Married", "Widowed", "Annuled" }));
-        cstatus.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        cstatus.setBorder(null);
         jPanel3.add(cstatus, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 680, 200, 30));
 
-        change.setBackground(new java.awt.Color(20, 20, 130));
+        change.setBackground(new java.awt.Color(12, 33, 74));
         change.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 255, 255), 2, true));
         change.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 changeMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                changeMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                changeMouseExited(evt);
             }
         });
         change.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -355,16 +354,23 @@ private void updateImagePreview(String path) {
         jLabel8.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/addphoto.png"))); // NOI18N
         jLabel8.setText("CHANGE");
         change.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 150, 20));
 
         jPanel3.add(change, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 320, 150, 40));
 
-        save.setBackground(new java.awt.Color(20, 20, 130));
+        save.setBackground(new java.awt.Color(12, 33, 74));
         save.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
         save.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 saveMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                saveMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                saveMouseExited(evt);
             }
         });
         save.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -377,10 +383,10 @@ private void updateImagePreview(String path) {
 
         jPanel3.add(save, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 820, 150, 40));
 
-        jPanel5.setBackground(new java.awt.Color(76, 143, 209));
+        jPanel5.setBackground(new java.awt.Color(12, 33, 74));
         jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize.png"))); // NOI18N
+        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize_white.png"))); // NOI18N
         minimize.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 minimizeMouseClicked(evt);
@@ -389,7 +395,7 @@ private void updateImagePreview(String path) {
         jPanel5.add(minimize, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 0, 30, 60));
 
         close.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close.png"))); // NOI18N
+        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close_white.png"))); // NOI18N
         close.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 closeMouseClicked(evt);
@@ -397,7 +403,7 @@ private void updateImagePreview(String path) {
         });
         jPanel5.add(close, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 0, 50, 70));
 
-        back.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/goback.png"))); // NOI18N
+        back.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/back_white.png"))); // NOI18N
         back.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 backMouseClicked(evt);
@@ -408,18 +414,16 @@ private void updateImagePreview(String path) {
         jPanel3.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 840, 70));
 
         jLabel7.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("Gender :");
         jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 720, 120, 30));
 
         gender.setEditable(true);
         gender.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         gender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female" }));
-        gender.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        gender.setBorder(null);
         jPanel3.add(gender, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 720, 200, 30));
 
         jLabel10.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
         jLabel10.setText("Address :");
         jPanel3.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 400, 110, 30));
 
@@ -430,23 +434,19 @@ private void updateImagePreview(String path) {
         jPanel3.add(address, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 400, 280, -1));
 
         jLabel11.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setText("Contact :");
         jPanel3.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 760, 120, 30));
 
-        contact.setBackground(new java.awt.Color(2, 54, 87));
+        contact.setBackground(new java.awt.Color(216, 236, 236));
         contact.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        contact.setForeground(new java.awt.Color(255, 255, 255));
         contact.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
         jPanel3.add(contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 760, 200, 30));
 
         jLabel12.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setText("PROFILE PHOTO");
         jPanel3.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 70, -1, 30));
 
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Change Password : ");
         jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 540, 190, -1));
 
@@ -459,10 +459,9 @@ private void updateImagePreview(String path) {
         });
         jPanel3.add(eye1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 540, 30, 30));
 
-        newpass.setBackground(new java.awt.Color(2, 54, 87));
+        newpass.setBackground(new java.awt.Color(216, 236, 236));
         newpass.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        newpass.setForeground(new java.awt.Color(255, 255, 255));
-        newpass.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
+        newpass.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
         newpass.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 newpassKeyReleased(evt);
@@ -476,7 +475,6 @@ private void updateImagePreview(String path) {
         jPanel3.add(strengthBar, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 574, 80, 30));
 
         jLabel13.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
         jLabel13.setText("Confrim Password :");
         jPanel3.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 630, 180, -1));
 
@@ -489,10 +487,14 @@ private void updateImagePreview(String path) {
         });
         jPanel3.add(eye2, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 630, -1, 30));
 
-        confirmpass.setBackground(new java.awt.Color(2, 54, 87));
+        confirmpass.setBackground(new java.awt.Color(216, 236, 236));
         confirmpass.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        confirmpass.setForeground(new java.awt.Color(255, 255, 255));
-        confirmpass.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
+        confirmpass.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        confirmpass.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmpassActionPerformed(evt);
+            }
+        });
         confirmpass.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 confirmpassKeyReleased(evt);
@@ -504,11 +506,17 @@ private void updateImagePreview(String path) {
         ps_error.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jPanel3.add(ps_error, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 670, 220, 30));
 
-        cancel.setBackground(new java.awt.Color(20, 20, 130));
+        cancel.setBackground(new java.awt.Color(12, 33, 74));
         cancel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
         cancel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 cancelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cancelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cancelMouseExited(evt);
             }
         });
         cancel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -522,13 +530,12 @@ private void updateImagePreview(String path) {
         jPanel3.add(cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 820, 130, 40));
 
         jLabel15.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
         jLabel15.setText("Account Status :");
         jPanel3.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 430, 150, 30));
 
         acc_status.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         acc_status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Active", "Inactive" }));
-        acc_status.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        acc_status.setBorder(null);
         jPanel3.add(acc_status, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 430, 200, 30));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -746,6 +753,38 @@ private void updateImagePreview(String path) {
     private void minimizeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeMouseClicked
            this.setState(ICONIFIED);
     }//GEN-LAST:event_minimizeMouseClicked
+
+    private void changeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_changeMouseEntered
+        change.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_changeMouseEntered
+
+    private void changeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_changeMouseExited
+         change.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_changeMouseExited
+
+    private void cancelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelMouseEntered
+        cancel.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_cancelMouseEntered
+
+    private void cancelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelMouseExited
+        cancel.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_cancelMouseExited
+
+    private void saveMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseEntered
+        save.setBackground(java.awt.Color.decode("#256B97"));
+    }//GEN-LAST:event_saveMouseEntered
+
+    private void saveMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseExited
+       save.setBackground(java.awt.Color.decode("#233E5C"));
+    }//GEN-LAST:event_saveMouseExited
+
+    private void lnameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lnameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lnameActionPerformed
+
+    private void confirmpassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmpassActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_confirmpassActionPerformed
 
     /**
      * @param args the command line arguments

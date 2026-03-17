@@ -108,10 +108,10 @@ public class registerForm extends javax.swing.JFrame {
         });
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel2.setBackground(new java.awt.Color(76, 143, 209));
+        jPanel2.setBackground(new java.awt.Color(12, 33, 74));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel3.setBackground(new java.awt.Color(204, 204, 255));
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 jPanel3MouseDragged(evt);
@@ -129,25 +129,21 @@ public class registerForm extends javax.swing.JFrame {
         header.setText("REGISTRATION FORM");
         jPanel3.add(header, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 540, 50));
 
-        firstname.setBackground(new java.awt.Color(204, 204, 255));
         firstname.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         firstname.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         firstname.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "First Name", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("SansSerif", 0, 18))); // NOI18N
         jPanel3.add(firstname, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 110, 390, 60));
 
-        lastname.setBackground(new java.awt.Color(204, 204, 255));
         lastname.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         lastname.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         lastname.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "Last Name", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("SansSerif", 0, 18))); // NOI18N
         jPanel3.add(lastname, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 180, 390, 60));
 
-        email.setBackground(new java.awt.Color(204, 204, 255));
         email.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         email.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         email.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "Email", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("SansSerif", 0, 18)), "", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION)); // NOI18N
         jPanel3.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 250, 390, 60));
 
-        username.setBackground(new java.awt.Color(204, 204, 255));
         username.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         username.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         username.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "Username", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("SansSerif", 0, 18))); // NOI18N
@@ -163,7 +159,6 @@ public class registerForm extends javax.swing.JFrame {
         });
         jPanel3.add(eye1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 410, 40, 40));
 
-        ps.setBackground(new java.awt.Color(204, 204, 255));
         ps.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         ps.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "Password", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("SansSerif", 0, 18))); // NOI18N
         ps.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -173,7 +168,7 @@ public class registerForm extends javax.swing.JFrame {
         });
         jPanel3.add(ps, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 390, 390, 60));
 
-        cancel.setBackground(new java.awt.Color(120, 120, 237));
+        cancel.setBackground(new java.awt.Color(12, 33, 74));
         cancel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 cancelMouseClicked(evt);
@@ -187,15 +182,16 @@ public class registerForm extends javax.swing.JFrame {
         });
         cancel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("CANCEL");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        cancel.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 140, 30));
+        cancel.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 140, 20));
 
-        jPanel3.add(cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 590, 140, 50));
+        jPanel3.add(cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 590, 140, 40));
 
-        register.setBackground(new java.awt.Color(120, 120, 237));
+        register.setBackground(new java.awt.Color(12, 33, 74));
         register.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 registerMouseClicked(evt);
@@ -209,13 +205,14 @@ public class registerForm extends javax.swing.JFrame {
         });
         register.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel2.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("REGISTER");
         jLabel2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        register.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 150, 30));
+        register.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 150, 20));
 
-        jPanel3.add(register, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 590, 150, 50));
+        jPanel3.add(register, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 590, 150, 40));
 
         jLabel3.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -234,14 +231,13 @@ public class registerForm extends javax.swing.JFrame {
                 eye2MouseClicked(evt);
             }
         });
-        jPanel3.add(eye2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 490, 30, 40));
+        jPanel3.add(eye2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 500, 50, 40));
 
         ps_error.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         ps_error.setForeground(new java.awt.Color(211, 18, 18));
         ps_error.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jPanel3.add(ps_error, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 540, 380, 20));
 
-        confps.setBackground(new java.awt.Color(204, 204, 255));
         confps.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         confps.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "Confirm Password", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("SansSerif", 0, 18))); // NOI18N
         confps.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -297,7 +293,7 @@ public class registerForm extends javax.swing.JFrame {
 
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 0, 540, 720));
 
-        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logobig.png"))); // NOI18N
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logowhite.png"))); // NOI18N
         jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 4, 520, 710));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
@@ -467,19 +463,19 @@ private void checkPasswordMatch() {
     }//GEN-LAST:event_cancelMouseClicked
 
     private void cancelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelMouseEntered
-        cancel.setBackground(new java.awt.Color(28,144,222));
+        cancel.setBackground(java.awt.Color.decode("#256B97"));
     }//GEN-LAST:event_cancelMouseEntered
 
     private void cancelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelMouseExited
-      cancel.setBackground(new java.awt.Color(120,120,237));
+      cancel.setBackground(java.awt.Color.decode("#233E5C"));
     }//GEN-LAST:event_cancelMouseExited
 
     private void registerMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_registerMouseEntered
-        register.setBackground(new java.awt.Color(28,144,222));
+        register.setBackground(java.awt.Color.decode("#256B97"));
     }//GEN-LAST:event_registerMouseEntered
 
     private void registerMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_registerMouseExited
-        register.setBackground(new java.awt.Color(120,120,237));
+        register.setBackground(java.awt.Color.decode("#233E5C"));
     }//GEN-LAST:event_registerMouseExited
 
     private void jPanel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MousePressed

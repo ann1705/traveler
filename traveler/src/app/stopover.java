@@ -5,7 +5,7 @@
  */
 package app;
 
-import config.Session;
+
 import config.dbConnector;
 import dashboard.adminDashboard;
 import java.sql.Connection;
@@ -15,20 +15,16 @@ import java.sql.Connection;
  * @author RageKing
  */
 public class stopover extends javax.swing.JFrame {
-
-    /**
-     * Creates new form stopover
-     */
+   private int xMouse, yMouse;
+   
     public stopover() {
+        this.setUndecorated(true);
+        
         initComponents();
-        saveStopoverData();
+         this.setShape(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
     }
 
    private void saveStopoverData() {
-    // 1. Get the Session instance (to track the user if needed)
-    Session sess = Session.getInstance();
-    
-    // 2. Validate Inputs
     String location = loc.getText().trim();
     String priceVal = price.getText().trim();
 
@@ -38,26 +34,24 @@ public class stopover extends javax.swing.JFrame {
     }
 
     try {
-        // 3. Get the Singleton DB Connection
+        double p = Double.parseDouble(priceVal); // Validates that price is a number
         Connection conn = dbConnector.getInstance().getConnection();
         
-        // 4. Prepare SQL Statement
         String sql = "INSERT INTO tbl_stopovers (location, price) VALUES (?, ?)";
         java.sql.PreparedStatement pst = conn.prepareStatement(sql);
         
         pst.setString(1, location);
-        pst.setString(2, priceVal); // Or pst.setDouble if using numeric type
+        pst.setDouble(2, p); // Store as a proper number
 
-        // 5. Execute
         int rows = pst.executeUpdate();
         if (rows > 0) {
             javax.swing.JOptionPane.showMessageDialog(this, "Stopover Saved Successfully!");
-            
-            // Navigate back to Dashboard
             adminDashboard ad = new adminDashboard();
             ad.setVisible(true);
             this.dispose();
         }
+    } catch (NumberFormatException e) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Please enter a valid number for the price!");
     } catch (Exception e) {
         javax.swing.JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
     }
@@ -83,16 +77,25 @@ public class stopover extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(76, 143, 209));
+        jPanel1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                jPanel1MouseDragged(evt);
+            }
+        });
+        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jPanel1MousePressed(evt);
+            }
+        });
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(76, 143, 209));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel3.setBackground(new java.awt.Color(204, 204, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 4));
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        save.setBackground(new java.awt.Color(204, 102, 255));
+        save.setBackground(new java.awt.Color(12, 33, 74));
         save.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
         save.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -102,6 +105,7 @@ public class stopover extends javax.swing.JFrame {
         save.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         savel.setFont(new java.awt.Font("SansSerif", 1, 24)); // NOI18N
+        savel.setForeground(new java.awt.Color(255, 255, 255));
         savel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         savel.setText("SAVE");
         savel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -114,11 +118,10 @@ public class stopover extends javax.swing.JFrame {
 
         jPanel3.add(save, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 250, 130, 40));
 
-        jPanel4.setBackground(new java.awt.Color(76, 143, 209));
-        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 4));
+        jPanel4.setBackground(new java.awt.Color(12, 33, 74));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/goback.png"))); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/back_white.png"))); // NOI18N
         jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel2MouseClicked(evt);
@@ -132,19 +135,19 @@ public class stopover extends javax.swing.JFrame {
         jLabel5.setText("Location :");
         jPanel3.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 130, 130, -1));
 
-        loc.setBackground(new java.awt.Color(204, 204, 255));
+        loc.setBackground(new java.awt.Color(216, 236, 236));
         loc.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        loc.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        loc.setBorder(null);
         jPanel3.add(loc, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 130, 240, 30));
 
         jLabel6.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         jLabel6.setText("Price :");
         jPanel3.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, 110, -1));
 
-        price.setBackground(new java.awt.Color(204, 204, 255));
+        price.setBackground(new java.awt.Color(216, 236, 236));
         price.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
         price.setToolTipText("");
-        price.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        price.setBorder(null);
         jPanel3.add(price, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 180, 240, 30));
 
         jLabel10.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
@@ -152,9 +155,9 @@ public class stopover extends javax.swing.JFrame {
         jPanel3.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, 120, -1));
 
         stopid.setEditable(false);
-        stopid.setBackground(new java.awt.Color(204, 204, 255));
+        stopid.setBackground(new java.awt.Color(255, 255, 255));
         stopid.setFont(new java.awt.Font("SansSerif", 0, 18)); // NOI18N
-        stopid.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        stopid.setBorder(null);
         jPanel3.add(stopid, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 80, 240, 30));
 
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 520, 330));
@@ -191,6 +194,17 @@ public class stopover extends javax.swing.JFrame {
         dispose();
 
     }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void jPanel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MousePressed
+       xMouse = evt.getX();
+      yMouse = evt.getY();
+    }//GEN-LAST:event_jPanel1MousePressed
+
+    private void jPanel1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseDragged
+     int x = evt.getXOnScreen();
+    int y = evt.getYOnScreen();
+    this.setLocation(x - xMouse, y - yMouse);
+    }//GEN-LAST:event_jPanel1MouseDragged
 
     /**
      * @param args the command line arguments

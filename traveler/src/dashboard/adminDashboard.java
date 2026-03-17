@@ -9,6 +9,8 @@ import app.addFleet;
 import app.landingPage;
 import app.profile;
 import app.stopover;
+import internalPages.bookingsTable;
+import internalPages.fleetTable;
 import internalPages.usersTable;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
@@ -18,10 +20,9 @@ import javax.swing.JInternalFrame;
  * @author RageKing
  */
 public class adminDashboard extends javax.swing.JFrame {
-
-    /**
-     * Creates new form adminDashboard
-     */
+     private int xMouse, yMouse;
+     
+     
     public adminDashboard() {
         config.Session sess = config.Session.getInstance();
     
@@ -147,6 +148,9 @@ public javax.swing.JDesktopPane getMainPane() {
 
         nav3.setBackground(new java.awt.Color(2, 54, 87));
         nav3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nav3MouseClicked(evt);
+            }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 nav3MouseEntered(evt);
             }
@@ -159,7 +163,7 @@ public javax.swing.JDesktopPane getMainPane() {
         jLabel4.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel4.setText("BOOKING");
+        jLabel4.setText("MANAGE BOOKINGS");
         nav3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(4, 14, 240, 20));
 
         navbar.add(nav3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 250, 50));
@@ -181,7 +185,7 @@ public javax.swing.JDesktopPane getMainPane() {
         jLabel5.setFont(new java.awt.Font("SansSerif", 1, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel5.setText("FLEET");
+        jLabel5.setText(" MANAGE FLEET");
         nav4.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 250, 20));
 
         navbar.add(nav4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 250, 50));
@@ -232,10 +236,10 @@ public javax.swing.JDesktopPane getMainPane() {
 
         jPanel2.add(navbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 250, 720));
 
-        jPanel3.setBackground(new java.awt.Color(255, 153, 153));
+        jPanel3.setBackground(new java.awt.Color(12, 33, 74));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize.png"))); // NOI18N
+        minimize.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/minimize_white.png"))); // NOI18N
         minimize.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 minimizeMouseClicked(evt);
@@ -244,7 +248,7 @@ public javax.swing.JDesktopPane getMainPane() {
         jPanel3.add(minimize, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 0, 30, 40));
 
         close.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close.png"))); // NOI18N
+        close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/close_white.png"))); // NOI18N
         close.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 closeMouseClicked(evt);
@@ -263,13 +267,13 @@ public javax.swing.JDesktopPane getMainPane() {
         mainpane.setBackground(new java.awt.Color(255, 255, 255));
         mainpane.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/bluegb.JPG"))); // NOI18N
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/whitebg.JPG"))); // NOI18N
         mainpane.add(jLabel7);
-        jLabel7.setBounds(0, -10, 770, 580);
+        jLabel7.setBounds(0, -16, 780, 590);
 
         jPanel2.add(mainpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 150, 770, 570));
 
-        jPanel9.setBackground(new java.awt.Color(20, 20, 130));
+        jPanel9.setBackground(new java.awt.Color(255, 255, 255));
         jPanel9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -280,11 +284,10 @@ public javax.swing.JDesktopPane getMainPane() {
         jPanel9.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 10, 60, 30));
 
         jLabel1.setFont(new java.awt.Font("SansSerif", 1, 36)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("ADMIN DASHBOARD");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jPanel9.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-2, 2, 770, 50));
+        jPanel9.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 770, 50));
 
         jPanel2.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 40, 770, 110));
 
@@ -304,7 +307,7 @@ public javax.swing.JDesktopPane getMainPane() {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-    private int xMouse, yMouse;
+   
     
     private void nav1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav1MouseClicked
 
@@ -367,9 +370,9 @@ public javax.swing.JDesktopPane getMainPane() {
     }//GEN-LAST:event_jLabel8MouseClicked
 
     private void nav4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav4MouseClicked
-        addFleet af = new addFleet();
-        af.setVisible(true);
-        dispose();
+        fleetTable ft = new fleetTable();
+       ft.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
+       mainpane.add(ft).setVisible(true);
     }//GEN-LAST:event_nav4MouseClicked
 
     private void logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseClicked
@@ -445,6 +448,12 @@ public javax.swing.JDesktopPane getMainPane() {
     private void closeMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeMouseReleased
         close.setForeground(java.awt.Color.WHITE);
     }//GEN-LAST:event_closeMouseReleased
+
+    private void nav3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nav3MouseClicked
+       bookingsTable bt = new bookingsTable();
+       bt.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
+       mainpane.add(bt).setVisible(true);
+    }//GEN-LAST:event_nav3MouseClicked
 
     /**
      * @param args the command line arguments
